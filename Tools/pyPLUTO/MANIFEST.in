@@ -1,0 +1,10 @@
+include README.txt
+include setup.py
+include MANIFEST.in
+include doc/html/_images/*.png
+include doc/html/_sources/*.txt
+include doc/html/_static/*.*
+include doc/html/*.html
+include doc/latex/pyPLUTO.*
+include examples/*.py
+include examples/FIGS/*.*

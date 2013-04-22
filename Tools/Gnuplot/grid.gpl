@@ -1,0 +1,62 @@
+#
+# FILE: grid.gpl
+#
+# Gnuplot script to read grid information contained inside "grid.out".
+# The script calls the bash shell script "readgrid.sh" which 
+# does the actual reading and return a different string depending on the 
+# input argument.
+# It works only with Gnuplot version 4.2 or higher, since it heavily 
+# relies on substitution of system commands in backquotes.
+# 
+# Last modified: Sept 7, 2012 by A. Mignone (mignone@ph.unito.it) 
+#
+
+print "Reading grid information..."
+`$PLUTO_DIR/Tools/Gnuplot/readgrid.sh -size`
+sline = "`$PLUTO_DIR/Tools/Gnuplot/readgrid.sh -xbeg`"
+xbL = word(sline,2)  # left  node of first coordinate point in the x-direction
+xbR = word(sline,3)  # right node of first coordinate point in the x-direction
+xbL = real(xbL)
+xbR = real(xbR)
+
+
+sline = "`$PLUTO_DIR/Tools/Gnuplot/readgrid.sh -xend`"
+xeL = word(sline,2) # left  node of last coordinate point in the x-direction
+xeR = word(sline,3) # right node of last coordinate point in the x-direction
+xeL = real(xeL)
+xeR = real(xeR)
+
+sline = "`$PLUTO_DIR/Tools/Gnuplot/readgrid.sh -ybeg`"
+ybL = word(sline,2) # left  node of first coordinate point in the y-direction
+ybR = word(sline,3) # right node of first coordinate point in the y-direction
+ybL = real(ybL)
+ybR = real(ybR)
+
+sline = "`$PLUTO_DIR/Tools/Gnuplot/readgrid.sh -yend`"
+yeL = word(sline,2) # left  node of last coordinate point in the y-direction
+yeR = word(sline,3) # right node of last coordinate point in the y-direction
+yeL = real(yeL)
+yeR = real(yeR)
+
+Nx = int(Nx)
+Ny = int(Ny)
+
+xb = 0.5*(xbL + xbR)
+xe = 0.5*(xeL + xeR)
+
+yb = 0.5*(ybL + ybR)
+ye = 0.5*(yeL + yeR)
+
+dx = xbR - xbL
+dy = ybR - ybL
+
+Lx = xeR - xbL
+Ly = yeR - ybL
+
+# do some printing...
+
+print " - Data has size (Nx,Ny)   = ",Nx,Ny
+print " - Domain start  (xbL,ybL) = ",xbL,ybL 
+print " - Domain length (Lx,Ly)   = ",Lx,Ly
+print " - Grid spacing  (dx,dy)   = ",dx,dy
+

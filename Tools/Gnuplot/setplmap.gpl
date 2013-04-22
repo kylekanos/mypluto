@@ -1,0 +1,62 @@
+#
+# FILE: setplmap.gpl
+#
+# set a default settings for viewing PLUTO binary data 
+# with Gnuplot using the pm3d style. 
+# It also provides the useful macros @fltform and
+# @dblform to conveniently plot data in single or double precision.
+#
+# Data can be read from a single dataset (in which case you can set nvar=<n> 
+# to select the variable) or from mutiple files (in which case you need to 
+# supply the desired filename to splot)
+#
+# Last modified: Nov 15, 2011 by A. Mignone (mignone@ph.unito.it) 
+#
+
+set autoscale xfixmin
+set autoscale xfixmax
+set autoscale yfixmin
+set autoscale yfixmax
+
+set pm3d transparent
+unset contour
+set title "  "
+set xlabel "x"
+set ylabel "y"
+#set key top left
+unset key
+set pm3d map
+#set palette defined
+set palette rgbformulae 22,13,-31
+#set palette rgbformulae 21,22,23  # red color
+#set palette rgbformulae 33,13,10 # rainbow (blue-green-yellow-red)
+
+#
+# activate macro expansion.
+# the macros @fltform and @dblform can be used
+# together with splot to provide the necessary
+# size and grid information
+# 
+
+set macro
+nvar = 0;
+str1 = sprintf("bin array=%dx%d format='%f' ",Nx,Ny)
+str2 = sprintf("dx=dx dy=dy origin=(xb, yb, 0.0) ");
+str3 = sprintf("skip=(Nx*Ny*4*nvar)");
+fltform = str1.str2.str3    # concatenate strings
+
+str1 = sprintf("bin array=%dx%d format='%lf' ",Nx,Ny)
+str3 = sprintf("skip=(Nx*Ny*8*nvar)");
+dblform = str1.str2.str3    
+
+# find maximum length and fix the aspect ratio
+
+#Lmax = (Lx > Ly ? Lx:Ly)
+#set size Lx/Lmax,Ly/Lmax
+
+# set margins
+
+set lmargin at screen 0.075
+set rmargin at screen 0.85
+set bmargin at screen 0.1
+set tmargin at screen 0.925

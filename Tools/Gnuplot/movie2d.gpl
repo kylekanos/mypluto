@@ -1,0 +1,82 @@
+#                          Movie2D  v. 1.1
+#                          ---------------
+#
+# Simple animation script to sequentially draw 2D datasets on the terminal
+# or png output.
+# 
+# SYNTAX: 
+# 
+#  gnuplot> call "movie.gpl" nbeg nend filename.ext image.fmt
+#
+#  nbeg:     initial file number in the sequence;
+#  nend:     final   file number in the sequence;
+#  filename: filename prefix
+#  .ext    : filename extension   (optional, default ".flt")
+#  image   : image name prefix    (optional, default output on 
+#                                  current terminal) 
+#  .fmt    : image name extension (optional, only ".png" is accepted) 
+# 
+# EXAMPLES:
+#
+#  gnuplot> call "movie2d.gpl" 0 45 data.flt 
+#
+#  will draw "data.0000.flt", "data.0001.flt", ... "data.nend.flt" on 
+#  the screen.
+#
+#  gnuplot> call "movie2d.gpl" 0 45 data.tab image.png
+#
+#  will draw "data.0000.flt", "data.0001.tab", ... "data.nend.tab" on 
+#  png files named "image.0000.png", "image.0001.png", .. "image.nend.png"
+#  screen.
+#
+# 
+# LAST MODIFIED: Sep 7 (2012) by A. Mignone (mignone@ph.unito.it)
+#
+
+narg  = $#
+nbeg  = $0
+nend  = $1
+dname = '$2'
+
+iname_ext = ' '
+if (narg > 4) dname_ext   = '.$4'; else dname_ext = ".flt"
+if (narg > 7) iname = '$5'; iname_ext = '$7'; 
+
+if (!exists("n")) n = nbeg
+if (!exists("nend")) nend = 10; print "! nend is not defined" 
+
+# -- obtain the data file name --
+
+fname =  n < 10   ? dname.".000".n.dname_ext \
+       : n < 100  ? dname.".00".n.dname_ext \
+       : n < 1000 ? dname.".0".n.dname_ext \
+       :            dname.".".n.dname_ext
+
+if (iname_ext eq "png")\
+  set term png; \
+  iname =  n < 10   ? iname.".000".n.".png" \
+         : n < 100  ? iname.".00".n.".png" \
+         : n < 1000 ? iname.".0".n.".png" \
+         :            iname.".".n.".png";\
+  set output iname; \
+  print "Creating ",iname;\
+else\
+  print "Plotting ",fname
+
+# --------------------------------------
+#  using difference versions of splot 
+#  depending of the file extension
+# --------------------------------------
+
+if (dname_ext eq ".tab") splot fname using 1:2:(column(3+nvar))
+if (dname_ext eq ".flt") splot fname @fltform
+if (dname_ext eq ".dbl") splot fname @dblform
+
+n = n+1
+pause 0.1
+if (n <= nend) reread
+
+if (iname_ext eq "png") set term x11; unset output
+undefine(n)
+undefine(nbeg)
+undefine(nend)
