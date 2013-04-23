@@ -9,8 +9,9 @@
   Time stepping include Euler, RK2 and RK3.
 
   \authors A. Mignone (mignone@ph.unito.it)\n
-           P. Tzeferacos (petros.tzeferacos@ph.unito.it)
-  \date   Oct 1, 2012
+           P. Tzeferacos (petros.tzeferacos@ph.unito.it)\n
+           G. Lesur (geoffroy.lesur@ujf-grenoble.fr)
+  \date   Apr. 2013
 */
 /* ///////////////////////////////////////////////////////////////////// */
 #include "pluto.h"
@@ -59,7 +60,8 @@ int Unsplit (const Data *d, Riemann_Solver *Riemann,
       for advection and diffusion.
       We use C_dt[RHO] for advection, 
              C_dt[MX1] for viscosity,
-             C_dt[BX1...BX3] for resistivity and
+             C_dt[BX1...BX3] for resistivity
+             C_dt[MX2] for Hall MHD and
              C_dt[ENG] for thermal conduction.
      ------------------------------------------------------- */
       
@@ -117,8 +119,11 @@ int Unsplit (const Data *d, Riemann_Solver *Riemann,
     #if THERMAL_CONDUCTION == EXPLICIT
      memset ((void *)C_dt[ENG][kk][jj],'\0', NX1_TOT*sizeof(double));  
     #endif
+    #if HALL_MHD == EXPLICIT
+      memset ((void *)C_dt[MX2][kk][jj],'\0', NX1_TOT*sizeof(double));
+    #endif
     
-/*    
+/*
     ITOT_LOOP(ii){
       for (nv = NVAR; nv--;  ) UU_1[kk][jj][ii][nv] = UU[kk][jj][ii][nv];
       
@@ -192,6 +197,10 @@ int Unsplit (const Data *d, Riemann_Solver *Riemann,
         #if THERMAL_CONDUCTION  == EXPLICIT
          dl2 = 0.5*inv_dl[in]*inv_dl[in];
          C_dt[ENG][*k][*j][*i] += (dcoeff[in-1][ENG] + dcoeff[in][ENG])*dl2;
+        #endif
+        #if HALL_MHD == EXPLICIT
+         dl2 = 0.5*inv_dl[in]*inv_dl[in];
+         C_dt[MX2][*k][*j][*i] += (dcoeff[in-1][MX2] + dcoeff[in][MX2])*dl2;
         #endif
         for (nv = NVAR; nv--;  )  UU_1[*k][*j][*i][nv] += state.rhs[in][nv];
       }
@@ -436,6 +445,10 @@ int Unsplit (const Data *d, Riemann_Solver *Riemann,
       #endif
       #if THERMAL_CONDUCTION == EXPLICIT
        Dts->inv_dtp = MAX(Dts->inv_dtp, C_dt[ENG][kk][jj][ii]);
+      #endif
+      #if HALL_MHD == EXPLICIT
+        // Since hall is essentially parabolic, maybe Dts->inv_dta should be used here... Not sure
+        Dts->inv_dtp = MAX(Dts->inv_dtp, C_dt[MX2][kk][jj][ii]);
       #endif
     }
   }}
