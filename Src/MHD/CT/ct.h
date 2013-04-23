@@ -7,8 +7,9 @@
   the constrained transport (CT) MHD module to control the divergence-free 
   condition.
 
-  \author A. Mignone (mignone@ph.unito.it)
-  \date   Oct 3, 2012
+  \author  A. Mignone (mignone@ph.unito.it)\n
+  		   G. Lesur 
+  \date    Apr. 2013
 */
 /* ///////////////////////////////////////////////////////////////////// */
 
@@ -130,6 +131,7 @@ void CT_StoreEMF (const State_1D *, int, int, Grid *);
 void CT_EMF_Init (const State_1D *, int, int, Grid *);
 
 void CT_StoreResistiveEMF (double **, int, int, Grid *);
+void CT_StoreHallEMF (double **, int, int, Grid *);
 EMF *CT_GetEMF (const Data *, Grid *);
 void FillMagneticField (const Data *, int, Grid *); 
 

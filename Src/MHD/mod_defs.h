@@ -237,6 +237,10 @@ Riemann_Solver LF_Solver, Roe_Solver;
  #include "Resistive/res.h"
 #endif
 
+#if HALL_MHD != NO
+ #include "Hall/hall.h"
+#endif
+
 #ifdef SHEARINGBOX
  #include "MHD/ShearingBox/shearingbox.h"
 #endif

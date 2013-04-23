@@ -202,10 +202,7 @@ void ParabolicFlux (Data_Arr V, const State_1D *state,
                    state->flux[i][BX2] += state->par_flx[i][BX2];  ,
                    state->flux[i][BX3] += state->par_flx[i][BX3]; )
             
-/* No implementation of Hall energetics for the moment */
-#if EOS != ISOTHERMAL
-    #error ! Non isothermal is not compatible with Hall Effect
-#endif
+/* Hall Effect does not have any energetic contribution */
         }
         
         /* ------------------------------------------

@@ -1,36 +1,19 @@
 /* ///////////////////////////////////////////////////////////////////// */
 /*!
   \file
-  \brief Compute the electric current.
+  \brief Compute the **FULL** electric current as needed by Hall
+  
+  \todo compute current in curvilinear coordinates
 
-  Compute the curl of magnetic field at the cell interfaces in the 
-  direction given by ::g_dir.
-  It returns a 1D array containing two of the three components 
-  (J_x, J_y, J_z). For instance, during the IDIR sweep, we compute
-  (0, J_y, J_z) at interface (i+1/2,j,k).
-  We do NOT compute the x-component (for g_dir == IDIR) since any 
-  differential operator successively applied to J will not need it. 
-  For instance:
- 
-            div(J)  = 0  (by definition)
-            curl(J) at i+1/2 does not need Jx;
- 
-  The same argument applies to other directions by cyclic permutation of 
-  indexes.
- 
-  \attention Do NOT use this function to compute terms like (curl V)^2 !!
-
-  \authors T. Matsakos\n
-           A. Mignone (mignone@ph.unito.it)\n
-           P. Tzeferacos (petros.tzeferacos@ph.unito.it)
+  \authors G. Lesur
            
-  \date   Aug 16, 2012
+  \date   April 2013
 */
 /* ///////////////////////////////////////////////////////////////////// */
 #include "pluto.h"
 
 /* ********************************************************************* */
-void GetCurrent (Data_Arr V, double **curlB, Grid *grid)
+void GetFullCurrent (Data_Arr V, double **curlB, Grid *grid)
 /*!
  *
  * \param [in] V       A 3D array of cell-centered primitive quantities
@@ -78,7 +61,7 @@ void GetCurrent (Data_Arr V, double **curlB, Grid *grid)
   dzBx = dzBy = dyBx = dyBz = dxBy = dxBz = 0.0;
 
 /* ----------------------------------------------
-      X1 g_dir: Compute J2, J3
+      X1 g_dir:
    ---------------------------------------------- */
 
   if (g_dir == IDIR){
@@ -93,16 +76,21 @@ void GetCurrent (Data_Arr V, double **curlB, Grid *grid)
 
       #if GEOMETRY == CARTESIAN
 
-       EXPAND(                                      ,
-        dxBy = (By[k][j][i+1] - By[k][j][i])*dx_1;  ,
-        dxBz = (Bz[k][j][i+1] - Bz[k][j][i])*dx_1;)
-       D_EXPAND(                                                ,
+/* Forget D_EXPAND and EXPAND MACROS for the moment */
+        dxBy = (By[k][j][i+1] - By[k][j][i])*dx_1;
+        dxBz = (Bz[k][j][i+1] - Bz[k][j][i])*dx_1;       
+                                                       
         dyBx = 0.25*(  Bx[k][j+1][i]   - Bx[k][j-1][i]
-                     + Bx[k][j+1][i+1] - Bx[k][j-1][i+1])*dy_1; ,
+                     + Bx[k][j+1][i+1] - Bx[k][j-1][i+1])*dy_1;
         dzBx = 0.25*(  Bx[k+1][j][i]   - Bx[k-1][j][i]
-                     + Bx[k+1][j][i+1] - Bx[k-1][j][i+1])*dz_1;)
+                     + Bx[k+1][j][i+1] - Bx[k-1][j][i+1])*dz_1;             
+        dyBz = 0.25*(  Bz[k][j+1][i]   - Bz[k][j-1][i]
+                     + Bz[k][j+1][i+1] - Bz[k][j-1][i+1])*dy_1;
+        dzBy = 0.25*(  By[k+1][j][i]   - By[k-1][j][i]
+                     + By[k+1][j][i+1] - By[k-1][j][i+1])*dz_1;
 
       #elif GEOMETRY == CYLINDRICAL
+      	#error !HALL is not yet compatible with non-cartesian coordinates
 
      /* -------------------------------------------------------------------
          here dxBz = d(r Bphi)/(r dr) is computed in the following way:
@@ -131,6 +119,7 @@ void GetCurrent (Data_Arr V, double **curlB, Grid *grid)
          dzBx = 0.0;) /* -- axisymmetry -- */
 
       #elif GEOMETRY == POLAR
+       	#error !HALL is not yet compatible with non-cartesian coordinates
 
        r_1  = 1.0/grid[IDIR].xr[i];
 
@@ -146,7 +135,7 @@ void GetCurrent (Data_Arr V, double **curlB, Grid *grid)
                      + Bx[k+1][j][i+1] - Bx[k-1][j][i+1])*dz_1;     )
 
       #elif GEOMETRY == SPHERICAL
-
+      	#error !HALL is not yet compatible with non-cartesian coordinates
        r_1 = 1.0/grid[IDIR].xr[i];
 
        EXPAND(                                           ,
@@ -162,13 +151,13 @@ void GetCurrent (Data_Arr V, double **curlB, Grid *grid)
                      + Bx[k+1][j][i+1] - Bx[k-1][j][i+1])*dz_1*r_1*s_1; )
 
       #endif
-
+	  curlB[i][0] = dyBz - dzBy;
       curlB[i][1] = dzBx - dxBz; 
       curlB[i][2] = dxBy - dyBx;                          
     }
 
 /* ----------------------------------------------
-      X2 g_dir: Compute J1, J3
+      X2 g_dir: 
    ---------------------------------------------- */
 
   }else if (g_dir == JDIR){
@@ -182,19 +171,21 @@ void GetCurrent (Data_Arr V, double **curlB, Grid *grid)
 
       #if GEOMETRY == CARTESIAN
 
-       EXPAND(dyBx = (Bx[k][j+1][i] - Bx[k][j][i])*dy_1;  ,
-                                                          ,
-              dyBz = (Bz[k][j+1][i] - Bz[k][j][i])*dy_1;)
-
-       D_EXPAND(           
-         dxBy = 0.25*(  By[k][j][i+1]   - By[k][j][i-1]
-                      + By[k][j+1][i+1] - By[k][j+1][i-1])*dx_1; ,
-                                                                 ,
-         dzBy = 0.25*(  By[k+1][j][i]   - By[k-1][j][i]
-                      + By[k+1][j+1][i] - By[k-1][j+1][i])*dz_1;) 
+       dyBx = (Bx[k][j+1][i] - Bx[k][j][i])*dy_1;  
+       dyBz = (Bz[k][j+1][i] - Bz[k][j][i])*dy_1;
+          
+       dxBy = 0.25*(  By[k][j][i+1]   - By[k][j][i-1]
+                    + By[k][j+1][i+1] - By[k][j+1][i-1])*dx_1;                                                      
+       dzBy = 0.25*(  By[k+1][j][i]   - By[k-1][j][i]
+                      + By[k+1][j+1][i] - By[k-1][j+1][i])*dz_1;
+       dxBz = 0.25*(  Bz[k][j][i+1]   - Bz[k][j][i-1]
+                    + Bz[k][j+1][i+1] - Bz[k][j+1][i-1])*dx_1;        
+       dzBx = 0.25*(  Bx[k+1][j][i]   - Bx[k-1][j][i]
+                      + Bx[k+1][j+1][i] - Bx[k-1][j+1][i])*dz_1;      
+       
 
       #elif GEOMETRY == CYLINDRICAL
-
+       	#error !HALL is not yet compatible with non-cartesian coordinates
        EXPAND(dyBx = (Bx[k][j+1][i] - Bx[k][j][i])*dy_1;   ,
                                                            ,
               dyBz = (Bz[k][j+1][i] - Bz[k][j][i])*dy_1;)
@@ -216,7 +207,7 @@ void GetCurrent (Data_Arr V, double **curlB, Grid *grid)
                      + By[k+1][j+1][i] - By[k-1][j+1][i])*dz_1;)
 
       #elif GEOMETRY == SPHERICAL
-
+       	#error !HALL is not yet compatible with non-cartesian coordinates
        s_1  = 1.0/grid[JDIR].A[j];
 
      /* -------------------------------------------------------------------
@@ -252,11 +243,12 @@ void GetCurrent (Data_Arr V, double **curlB, Grid *grid)
       #endif
 
       curlB[j][0] = dyBz - dzBy; 
+      curlB[j][1] = dzBx - dxBz;
       curlB[j][2] = dxBy - dyBx; 
     }
 
 /* ----------------------------------------------
-      X3 g_dir: Compute J1, J2
+      X3 g_dir: 
    ---------------------------------------------- */
 
   }else if (g_dir == KDIR) {
@@ -275,8 +267,14 @@ void GetCurrent (Data_Arr V, double **curlB, Grid *grid)
                     + Bz[k+1][j][i+1] - Bz[k+1][j][i-1])*dx_1;
        dyBz = 0.25*(  Bz[k][j+1][i]   - Bz[k][j-1][i]
                     + Bz[k+1][j+1][i] - Bz[k+1][j-1][i])*dy_1;
+       dxBy = 0.25*(  By[k][j][i+1]   - By[k][j][i-1]
+                    + By[k+1][j][i+1] - By[k+1][j][i-1])*dx_1;
+       dyBx = 0.25*(  Bx[k][j+1][i]   - Bx[k][j-1][i]
+                    + Bx[k+1][j+1][i] - Bx[k+1][j-1][i])*dy_1;
+                    
 
       #elif GEOMETRY == POLAR
+             	#error !HALL is not yet compatible with non-cartesian coordinates
        dxBz = 0.25*( Bz[k][j][i+1]   - Bz[k][j][i-1]
                    + Bz[k+1][j][i+1] - Bz[k+1][j][i-1])*dx_1;
        dyBz = 0.25*(  Bz[k][j+1][i]     - Bz[k][j-1][i]
@@ -285,7 +283,7 @@ void GetCurrent (Data_Arr V, double **curlB, Grid *grid)
        dzBy = (By[k+1][j][i] - By[k][j][i])*dz_1;
 
       #elif GEOMETRY == SPHERICAL
-
+       	#error !HALL is not yet compatible with non-cartesian coordinates
        s_1  = 1.0/grid[JDIR].A[j];
        dxBz = 0.25*( r[i+1]*(Bz[k][j][i+1] + Bz[k+1][j][i+1])
                    - r[i-1]*(Bz[k][j][i-1] + Bz[k+1][j][i-1]))*dx_1*r_1;
@@ -298,142 +296,8 @@ void GetCurrent (Data_Arr V, double **curlB, Grid *grid)
       #endif
       curlB[k][0] = dyBz - dzBy;              
       curlB[k][1] = dzBx - dxBz;
+      curlB[k][2] = dxBy - dyBx;
     }
   }
 }
 
-/* *********************************************************** */
-void ADD_OHM_HEAT (const Data *d, double dt, Grid *grid)
-/*
- *
- * PURPOSE
- *
- *   Compute and add half the ohming heating to the pressure.
- *   This function is called twice, before and after the STS
- *   integrator. The reason the pressure is not updated with
- *   STS but instead this function is used, is because the
- *   ohming heating cannot be written as parabolic term, a
- *   requirement for the STS technique.
- *   
- ************************************************************* */
-{
-#if EOS == IDEAL
-  int i, j, k, nv;
-  double x1, x2, x3, dx_1, dy_1, dz_1, r_1, s_1, t_1;
-  double Jx, Jy, Jz;
-  double dxBy, dxBz, dyBx, dyBz, dzBx, dzBy;
-  double scrh, eta[3];
-  double *r, *th;
-  double ***Bx, ***By, ***Bz;
-  static double *v;
-
-  if (v == NULL) {
-    v = ARRAY_1D(NVAR, double);
-  }
-
-  D_EXPAND(
-    dx_1 = 1.0/grid[IDIR].dx[IBEG]; ,
-    dy_1 = 1.0/grid[JDIR].dx[JBEG]; ,
-    dz_1 = 1.0/grid[KDIR].dx[KBEG];
-  )
-
-  D_EXPAND(
-    r  = grid[IDIR].x; ,
-    th = grid[JDIR].x; ,
-  )
-
-  EXPAND(
-    Bx = d->Vc[BX1]; ,
-    By = d->Vc[BX2]; ,
-    Bz = d->Vc[BX3];
-  )
-
-  scrh = (g_gamma - 1.0)*dt;
-
-  Boundary(d, ALL_DIR, grid);
-
-  DOM_LOOP(k, j, i) {
-
-    D_EXPAND(
-      x1 = grid[IDIR].x[i]; ,
-      x2 = grid[JDIR].x[j]; ,
-      x3 = grid[KDIR].x[k];
-    )
-
-    for (nv = NVAR; nv--; ) v[nv] = d->Vc[nv][k][j][i];
-
-    ETA_Func(v, x1, x2, x3, eta);
-
-    dzBx = dzBy = dyBx = dyBz = dxBy = dxBz = 0.0;
- 
-    #if GEOMETRY == CARTESIAN
-     D_EXPAND(
-       EXPAND(                                                ,
-         dxBy = 0.5*(By[k][j][i + 1] - By[k][j][i - 1])*dx_1; ,
-         dxBz = 0.5*(Bz[k][j][i + 1] - Bz[k][j][i - 1])*dx_1;
-       ) ,
-       EXPAND(
-         dyBx = 0.5*(Bx[k][j + 1][i] - Bx[k][j - 1][i])*dy_1; , ,
-         dyBz = 0.5*(Bz[k][j + 1][i] - Bz[k][j - 1][i])*dy_1;
-       ) ,
-       dzBx = 0.5*(Bx[k + 1][j][i] - Bx[k - 1][j][i])*dz_1;
-       dzBy = 0.5*(By[k + 1][j][i] - By[k - 1][j][i])*dz_1;
-     )
-    #endif
-    #if GEOMETRY == CYLINDRICAL
-     r_1  = 1.0/r[i];       
-     D_EXPAND(
-       EXPAND(                                                ,
-         dxBy = 0.5*(By[k][j][i + 1] - By[k][j][i - 1])*dx_1; ,
-         dxBz = 0.5*(Bz[k][j][i + 1] - Bz[k][j][i - 1])*dx_1 + Bz[k][j][i]*r_1;
-       ) ,
-       EXPAND(
-         dyBx = 0.5*(Bx[k][j + 1][i] - Bx[k][j - 1][i])*dy_1; , ,
-         dyBz = 0.5*(Bz[k][j + 1][i] - Bz[k][j - 1][i])*dy_1;
-       ) ,
-     )
-    #endif
-    #if GEOMETRY == POLAR
-     r_1  = 1.0/r[i];
-     D_EXPAND(
-       EXPAND(                                                                  ,
-         dxBy = 0.5*(By[k][j][i + 1] - By[k][j][i - 1])*dx_1 + By[k][j][i]*r_1; ,
-         dxBz = 0.5*(Bz[k][j][i + 1] - Bz[k][j][i - 1])*dx_1;
-       ) ,
-       EXPAND(
-         dyBx = 0.5*(Bx[k][j + 1][i] - Bx[k][j - 1][i])*dy_1*r_1; , ,
-         dyBz = 0.5*(Bz[k][j + 1][i] - Bz[k][j - 1][i])*dy_1*r_1;
-       ) ,
-       dzBx = 0.5*(Bx[k + 1][j][i] - Bx[k - 1][j][i])*dz_1;
-       dzBy = 0.5*(By[k + 1][j][i] - By[k - 1][j][i])*dz_1;
-     )
-    #endif
-    #if GEOMETRY == SPHERICAL
-     D_EXPAND(
-       r_1  = 1.0/r[i];       ,
-       s_1  = 1.0/sin(th[j]);
-       t_1  = 1.0/tan(th[j]); ,
-     )
-     D_EXPAND(
-       EXPAND(                                                                  ,
-         dxBy = 0.5*(By[k][j][i + 1] - By[k][j][i - 1])*dx_1 + By[k][j][i]*r_1; ,
-         dxBz = 0.5*(Bz[k][j][i + 1] - Bz[k][j][i - 1])*dx_1 + Bz[k][j][i]*r_1;
-       ) ,
-       EXPAND(
-         dyBx = 0.5*(Bx[k][j + 1][i] - Bx[k][j - 1][i])*dy_1*r_1; , ,
-         dyBz = 0.5*(Bz[k][j + 1][i] - Bz[k][j - 1][i])*dy_1*r_1 + Bz[k][j][i]*r_1*t_1;
-       ) ,
-       dzBx = 0.5*(Bx[k + 1][j][i] - Bx[k - 1][j][i])*dz_1*r_1*s_1;
-       dzBy = 0.5*(By[k + 1][j][i] - By[k - 1][j][i])*dz_1*r_1*s_1;
-     )
-    #endif
- 
-    Jx = dyBz - dzBy;
-    Jy = dzBx - dxBz;
-    Jz = dxBy - dyBx;
-    
-    d->Vc[PRS][k][j][i] += scrh*(eta[0]*Jx*Jx + eta[1]*Jy*Jy + eta[2]*Jz*Jz);
-
-  }
-#endif
-}

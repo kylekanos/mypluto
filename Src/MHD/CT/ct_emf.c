@@ -16,19 +16,23 @@
 
   This CT_StoreResistiveEMF() function is used to save the 
   electric field components associated with resistive terms only.
+  
+  CT_StoreHallEMF() function is used to save the 
+  electric field components associated with Hall terms only.
 
   The function CT_GetEMF() is used to obtain the edge-centered electric 
   field by properly averaging the EMF components previously stored
   at the zone faces during the 1D sweeps.
 
-  \author  A. Mignone (mignone@ph.unito.it)
-  \date    Aug 16, 2012
+  \author  A. Mignone (mignone@ph.unito.it)\n
+  		   G. Lesur 
+  \date    Apr. 2013
 */
 /* ///////////////////////////////////////////////////////////////////// */
 
 #include "pluto.h"
 
-static EMF emf, emf_res;
+static EMF emf, emf_res, emf_hall;
 
 #define eps_UCT_CONTACT   1.e-6
 #define EX(k,j,i)  (vz[k][j][i]*By[k][j][i] - vy[k][j][i]*Bz[k][j][i])
@@ -258,6 +262,60 @@ void CT_StoreResistiveEMF (double **res_flx, int beg, int end, Grid *grid)
 }
 
 /* ********************************************************************* */
+void CT_StoreHallEMF (double **hall_flx, int beg, int end, Grid *grid)
+/*!
+ * Store Hall effect part of EMF.
+ *
+ * \todo some memory could be saved here...
+ *********************************************************************** */
+{
+  int i, j, k;
+ 
+  if (emf_hall.ezi == NULL){
+    D_EXPAND(                                               ;  ,
+
+      emf_hall.ezi = ARRAY_3D(NX3_TOT, NX2_TOT, NX1_TOT, double);  
+      emf_hall.ezj = ARRAY_3D(NX3_TOT, NX2_TOT, NX1_TOT, double);  ,
+
+      emf_hall.exj = ARRAY_3D(NX3_TOT, NX2_TOT, NX1_TOT, double);
+      emf_hall.exk = ARRAY_3D(NX3_TOT, NX2_TOT, NX1_TOT, double);
+
+      emf_hall.eyi = ARRAY_3D(NX3_TOT, NX2_TOT, NX1_TOT, double);
+      emf_hall.eyk = ARRAY_3D(NX3_TOT, NX2_TOT, NX1_TOT, double);
+    )
+  }
+
+/* ------------------------------------------------------
+     Store emf component or other necessary 1-D data
+   ------------------------------------------------------ */
+
+  if (g_dir == IDIR){
+
+    for (i = beg; i <= end; i++) {
+      D_EXPAND(emf_hall.ezi[*g_k][*g_j][i] = -hall_flx[i][BX2];  ,
+                                                               ;  ,
+               emf_hall.eyi[*g_k][*g_j][i] =  hall_flx[i][BX3]; ) 
+     }
+
+  }else if (g_dir == JDIR){
+
+    for (j = beg; j <= end; j++) {
+       D_EXPAND(                                                ;  ,
+                emf_hall.ezj[*g_k][j][*g_i] =  hall_flx[j][BX1];  ,
+                emf_hall.exj[*g_k][j][*g_i] = -hall_flx[j][BX3]; )
+    }
+
+  }else if (g_dir == KDIR){
+
+    for (k = beg; k <= end; k++) {
+       emf_hall.eyk[k][*g_j][*g_i] = -hall_flx[k][BX1]; 
+       emf_hall.exk[k][*g_j][*g_i] =  hall_flx[k][BX2]; 
+    }
+  }
+}
+
+
+/* ********************************************************************* */
 EMF *CT_GetEMF (const Data *d, Grid *grid)
 /*!
  * Retrieve EMF by suitable average of 1D face-centered fluxes.
@@ -391,6 +449,28 @@ printf ("%d %d   %d %d\n",0, NX1_TOT-1, 0, NX2_TOT-1);
                              + emf_res.ezj[k][j][i] + emf_res.ezj[k][j][i + 1]);
    }}}
   #endif
+  
+  /* ------------------------------------------------------
+    Contributions from Hall effect are accounted for
+    using the standard arithmetic average.
+    We'll keep this in absence of something better...
+   ------------------------------------------------------ */
+
+  #if HALL_MHD == EXPLICIT 
+   for (k = emf.kbeg; k <= emf.kend; k++){
+   for (j = emf.jbeg; j <= emf.jend; j++){
+   for (i = emf.ibeg; i <= emf.iend; i++){      
+     #if DIMENSIONS == 3
+      emf.ex[k][j][i] += 0.25*( emf_hall.exk[k][j][i] + emf_hall.exk[k][j + 1][i] 
+                              + emf_hall.exj[k][j][i] + emf_hall.exj[k + 1][j][i]);
+      emf.ey[k][j][i] += 0.25*( emf_hall.eyi[k][j][i] + emf_hall.eyi[k + 1][j][i] 
+                              + emf_hall.eyk[k][j][i] + emf_hall.eyk[k][j][i + 1]);
+     #endif 
+     emf.ez[k][j][i] += 0.25*( emf_hall.ezi[k][j][i] + emf_hall.ezi[k][j + 1][i] 
+                             + emf_hall.ezj[k][j][i] + emf_hall.ezj[k][j][i + 1]);
+   }}}
+  #endif
+
    
 /* -------------------------------------------------------------
     Fine Tuning: EMF_USERDEF_BOUNDARY can be used to directly

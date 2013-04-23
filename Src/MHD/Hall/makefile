@@ -1,7 +1,7 @@
-# Makefile for the Magnetohydrodynamics (MHD) Module 
+# Makefile for the Magnetohydrodynamics HALL (Hall-MHD) Module 
 
-VPATH += $(SRC)/MHD/Resistive
-OBJ   +=  res_flux.o res_eta.o res_functions.o 
-HEADERS += res.h
+VPATH += $(SRC)/MHD/Hall
+OBJ   +=  hall_flux.o hall_l.o hall_functions.o 
+HEADERS += hall.h
  
 

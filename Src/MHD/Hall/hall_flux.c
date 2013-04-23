@@ -52,7 +52,7 @@
 void HallFlux (Data_Arr V, double **RF, double **dcoeff,
                     int beg, int end, Grid *grid)
 /*! 
- *  Compute resistive fluxes for the induction and energy
+ *  Compute Hall fluxes for the induction and energy
  *  equations. Also, compute the diffusion coefficient.
  *  Called by either ParabolicFlux or ParabolicRHS.
  *
@@ -69,12 +69,12 @@ void HallFlux (Data_Arr V, double **RF, double **dcoeff,
 {
   int  i, j, k, nv;
   double x1, x2, x3, scrh;
-  double eta[3], vi[NVAR];
+  double lHall, vi[NVAR];
   static double **J;
 
   if (J == NULL) J = ARRAY_2D(NMAX_POINT, 3, double);
   
-  GetCurrent (V, J, grid);
+  GetFullCurrent (V, J, grid);
  
   D_EXPAND(x1 = grid[IDIR].x[*g_i];  ,
            x2 = grid[JDIR].x[*g_j];  ,
@@ -96,26 +96,22 @@ void HallFlux (Data_Arr V, double **RF, double **dcoeff,
       for (nv = 0; nv < NVAR; nv++) {
         vi[nv] = 0.5*(V[nv][k][j][i] + V[nv][k][j][i + 1]);
       }
-      lHall_Func (vi, x1, x2, x3, eta);
+      lHall_Func (vi, x1, x2, x3, &lHall);
 
       EXPAND(                                       ,
-             RF[i][BX2] = - eta[KDIR]*J[i][KDIR];   ,
-             RF[i][BX3] =   eta[JDIR]*J[i][JDIR];)
-      #if EOS != ISOTHERMAL
-       RF[i][ENG] = EXPAND(0.0, + vi[BX2]*RF[i][BX2], + vi[BX3]*RF[i][BX3]);
-      #endif
+             RF[i][BX2] = -lHall * (J[i][IDIR] * vi[BX2] - J[i][JDIR] * vi[BX1]);   ,
+             RF[i][BX3] = -lHall * (J[i][IDIR] * vi[BX3] - J[i][KDIR] * vi[BX1]);)
 /*
       scrh = MAX(eta[0], eta[1]);
       scrh = MAX(scrh, eta[2]);
       eta_loc[i] = scrh;
 */
   /* ----------------------------------------------
-      compute local inverse dt, dt^{-1} = eta/dl^2
+      compute local inverse dt, dt^{-1} = |lHall|B0/dl^2
+      (Whistler wave timescale)
      ---------------------------------------------- */
-
-      EXPAND(dcoeff[i][BX1] = 0.0;        ,
-             dcoeff[i][BX2] = eta[KDIR];  ,
-             dcoeff[i][BX3] = eta[JDIR];)
+     
+             dcoeff[i][MX2] = fabs(lHall)*vi[BX1];
     }
 
   }else if (g_dir == JDIR){
@@ -129,26 +125,22 @@ void HallFlux (Data_Arr V, double **RF, double **dcoeff,
       for (nv = 0; nv < NVAR; nv++) {
         vi[nv] = 0.5*(V[nv][k][j][i] + V[nv][k][j + 1][i]);
       }
-      lHall_Func (vi, x1, x2, x3, eta);
+      lHall_Func (vi, x1, x2, x3, &lHall);
 
-      EXPAND(RF[j][BX1] =   eta[KDIR]*J[j][KDIR];   ,
+      EXPAND(RF[j][BX1] = -lHall * (J[j][JDIR] * vi[BX1] - J[j][IDIR] * vi[BX2]);   ,
                                                     ,
-             RF[j][BX3] = - eta[IDIR]*J[j][IDIR];)
-      #if EOS != ISOTHERMAL
-       RF[j][ENG] = EXPAND(vi[BX1]*RF[j][BX1],     , + vi[BX3]*RF[j][BX3]);
-      #endif
+             RF[j][BX3] = -lHall * (J[j][JDIR] * vi[BX3] - J[j][KDIR] * vi[BX2]);)
 /*
       scrh = MAX(eta[0], eta[1]);
       scrh = MAX(scrh, eta[2]);
       eta_loc[j] = scrh;
 */
   /* ----------------------------------------------
-      compute local inverse dt, dt^{-1} = eta/dl^2
+      compute local inverse dt, dt^{-1} = |lHall|B0/dl^2
+      (Whistler wave timescale)
      ---------------------------------------------- */
 
-      EXPAND(dcoeff[j][BX1] = eta[KDIR];   ,
-             dcoeff[j][BX2] = 0.0;         ,
-             dcoeff[j][BX3] = eta[IDIR];)
+      dcoeff[j][MX2] = fabs(lHall)*vi[BX2];
     }
 
   }else if (g_dir == KDIR){
@@ -162,25 +154,22 @@ void HallFlux (Data_Arr V, double **RF, double **dcoeff,
       for (nv = 0; nv < NVAR; nv++) {
         vi[nv] = 0.5*(V[nv][k][j][i] + V[nv][k + 1][j][i]);
       }
-      lHall_Func (vi, x1, x2, x3, eta);
+      lHall_Func (vi, x1, x2, x3, &lHall);
 
-      RF[k][BX1] = - eta[JDIR]*J[k][JDIR];
-      RF[k][BX2] =   eta[IDIR]*J[k][IDIR];
-      #if EOS != ISOTHERMAL
-       RF[k][ENG] = vi[BX1]*RF[k][BX1] + vi[BX2]*RF[k][BX2];
-      #endif
+      RF[k][BX1] = -lHall * (J[k][KDIR] * vi[BX1] - J[k][IDIR] * vi[BX3]);
+      RF[k][BX2] = -lHall * (J[k][KDIR] * vi[BX2] - J[k][JDIR] * vi[BX3]);
+
 /*
       scrh = MAX(eta[0], eta[1]);
       scrh = MAX(scrh, eta[2]);
       eta_loc[k] = scrh;
 */ 
   /* ----------------------------------------------
-      compute local inverse dt, dt^{-1} = eta/dl^2
+      compute local inverse dt, dt^{-1} = |lHall|B0/dl^2
+      (Whistler wave timescale)
      ---------------------------------------------- */
 
-      EXPAND(dcoeff[k][BX1] = eta[JDIR];  ,
-             dcoeff[k][BX2] = eta[IDIR];  ,
-             dcoeff[k][BX3] = 0.0;)
+      dcoeff[k][MX2] = fabs(lHall)*vi[BX3];
     }
   }
 }
