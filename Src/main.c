@@ -74,13 +74,15 @@ int main (int argc, char *argv[])
   char   first_step=1, last_step = 0;
   double scrh;
   Data   data;
-  time_t  tbeg, tend;
+  time_t  tbeg, tend, tnow;
   Riemann_Solver *Solver;
   Grid      grd[3];
   Time_Step Dts;
   Cmd_Line cmd_line;
   Input  ini;
   Output *output;
+  double telapsed;
+  int n;
 /*
   print1 ("sizeof (CMD_LINE)   = %d\n", sizeof(Cmd_Line));
   print1 ("sizeof (DATA)       = %d\n", sizeof(Data));
@@ -160,7 +162,21 @@ int main (int argc, char *argv[])
     if (g_stepNumber == cmd_line.maxsteps && cmd_line.maxsteps > 0) {
       last_step = 1;
     }
-
+    time (&tnow);
+    telapsed=difftime(tnow,tbeg);
+    if (telapsed/3600. >= ini.max_rtime) {
+        print1 ("Maximum runtime reached\n");
+        /* Try to create a restart dump */
+        for (n = 0; n < MAX_OUTPUT_TYPES; n++){
+            if((ini.output[n].type == DBL_OUTPUT) || (ini.output[n].type == DBL_H5_OUTPUT)) {
+                WriteData (&data, &ini.output[n], grd);
+                RestartDump (&ini);
+            }
+        }
+        last_step = 1;
+      }
+      
+      
   /* ------------------------------------------------------
                 Dump log information
      ------------------------------------------------------ */
