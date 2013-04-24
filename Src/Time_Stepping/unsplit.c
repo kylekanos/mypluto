@@ -77,7 +77,9 @@ int Unsplit (const Data *d, Riemann_Solver *Riemann,
     #if THERMAL_CONDUCTION == EXPLICIT
      C_dt[ENG] = ARRAY_3D(NX3_TOT, NX2_TOT, NX1_TOT, double);
     #endif
-   
+    #if HALL_MHD == EXPLICIT
+     C_dt[MX2] = ARRAY_3D(NX3_TOT, NX2_TOT, NX1_TOT, double);
+    #endif
   }
 
 /* ----------------------------------------------------

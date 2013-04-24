@@ -57,10 +57,13 @@
 /* ----------------------------
     Global variables
    ---------------------------- */
+// Remove sb_q and use sb_A instead to allow for zero rotation shearing boxes
 
+/*
 extern double sb_q;  /**< The shear parameter, \f$\DS q = -\HALF\frac{d\log
               \Omega^2}{d\log R} \f$. The explicit numerical value and the
               variable definition should be set inside your Init() function. */
+
 
 extern double sb_Omega; /**< Disk local orbital frequency \f$ \Omega_0 = 
               \Omega(R_0)\f$. The explicit numerical value and the variable
@@ -68,6 +71,9 @@ extern double sb_Omega; /**< Disk local orbital frequency \f$ \Omega_0 =
 
 extern double sb_vy;  /**< velocity offset (>0), in USERDEF_BOUNDARY */ 
 
+extern double sb_A;  /**< Oort Constant \f$ A=-q\Omega_0/2 */
+
+/*
 #define sb_A (-0.5*sb_Omega*sb_q)  /**< Short-hand definition for the Oort
                                         constant \f$ A = -q\Omega_0/2 \f$. */
 
