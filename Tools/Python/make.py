@@ -366,6 +366,10 @@ def problem(work_dir, pluto_path, pluto_dir, additional_files,
       options_MHD.append(['NO','EXPLICIT','SUPER_TIME_STEPPING'])
 
     default_MHD.append('NO')
+    
+    entries_MHD.append('HALL_MHD')
+    options_MHD.append(['NO','EXPLICIT'])
+    default_MHD.append('NO')
 
     entries_MHD.append('THERMAL_CONDUCTION')
     if (WITH_CHOMBO == 1):
@@ -666,6 +670,11 @@ def problem(work_dir, pluto_path, pluto_dir, additional_files,
       if   (default_MOD[n] == 'SUPER_TIME_STEPPING'): sts_flag = 1
       elif (default_MOD[n] == 'RK_CHEBYSHEV'):        rkc_flag = 1
       elif (default_MOD[n] == 'EXPLICIT'):            exp_flag = 1
+      
+    n = entries_MOD.index('HALL_MHD')
+    if (default_MOD[n] != 'NO'):
+      pluto_path.append('MHD/Hall/')
+      if   (default_MOD[n] == 'EXPLICIT'): 			exp_flag = 1
 
     n = entries_MOD.index('THERMAL_CONDUCTION')
     if (default_MOD[n] != 'NO'):
