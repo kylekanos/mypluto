@@ -303,9 +303,16 @@ void WriteVTK_Vector (FILE *fvtk, Data_Arr V,
 
       #elif GEOMETRY == POLAR /* -- transform to cartesian # -- */
 
-       vect3D[k][j][i].v1 = v1*cos(x2) - v2*sin(x2);
-       vect3D[k][j][i].v2 = v1*sin(x2) + v2*cos(x2);
-       vect3D[k][j][i].v3 = v3;
+        /*
+         vect3D[k][j][i].v1 = v1*cos(x2) - v2*sin(x2);
+         vect3D[k][j][i].v2 = v1*sin(x2) + v2*cos(x2);
+         vect3D[k][j][i].v3 = v3;
+         */
+        // Actually, do not transform to cartesian
+        vect3D[k][j][i].v1 = v1;
+        vect3D[k][j][i].v2 = v2;
+        vect3D[k][j][i].v3 = v3;
+
 
       #elif GEOMETRY == SPHERICAL /* -- transform to cartesian # -- */
 
@@ -314,9 +321,16 @@ void WriteVTK_Vector (FILE *fvtk, Data_Arr V,
         vect3D[k][j][i].v2 = v1*cos(x2)         - v2*sin(x2);
         vect3D[k][j][i].v3 = v3;
        #elif DIMENSIONS == 3 
+        /*
         vect3D[k][j][i].v1 = v1*(sin(x2) + v2*cos(x2))*cos(x3) - v3*sin(x3);
         vect3D[k][j][i].v2 = v1*(sin(x2) + v2*cos(x2))*sin(x3) + v3*cos(x3);
         vect3D[k][j][i].v3 = v1*cos(x2)  - v2*sin(x2);
+         */
+        // Use cyclindrical coordinates
+        vect3D[k][j][i].v1 = sin(x2)*v1+cos(x2)*v2;
+        vect3D[k][j][i].v2 = v3;
+        vect3D[k][j][i].v3 = v1*cos(x2)-v2*sin(x2);
+        
        #endif
       #endif
 
@@ -329,9 +343,9 @@ void WriteVTK_Vector (FILE *fvtk, Data_Arr V,
     } /* endfor DOM_LOOP(k,j,i) */
 
     if (vel_field)
-      sprintf (header,"\nVECTORS %dD_Velocity_Field float\n", DIMENSIONS);
+      sprintf (header,"\nVECTORS Velocity_Field float\n", DIMENSIONS);
     else
-      sprintf (header,"\nVECTORS %dD_Magnetic_Field float\n", DIMENSIONS);
+      sprintf (header,"\nVECTORS Magnetic_Field float\n", DIMENSIONS);
 
     #ifdef PARALLEL
      AL_Write_header (header, strlen(header), MPI_CHAR, SZ_Float_Vect);

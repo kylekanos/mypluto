@@ -148,6 +148,8 @@ printf ("%f  %d %s\n",input->patch_left_node[idim][ip],input->patch_npoint[idim]
   if (ParQuery ("rmax_par")) input->rmax_par = atof(ParGet("rmax_par", 1));
   else                        input->rmax_par = 100.0;
 
+  if (ParQuery ("max_rtime")) input->max_rtime = atof(ParGet("max_rtime", 1));
+  else                         input->max_rtime = 1.0e40;
 
   input->cfl_max_var = atof(ParGet("CFL_max_var", 1));
   input->tstop       = atof(ParGet("tstop", 1));

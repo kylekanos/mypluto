@@ -1,7 +1,7 @@
 #include"pluto.h"
 
 #define  sqrt_1_2  (0.70710678118654752440)
-#define HLL_HYBRIDIZATION NO
+#define HLL_HYBRIDIZATION YES
 
 /* **************************************************************************** */
 void Roe_Solver (const State_1D *state, int beg, int end, 
