@@ -483,6 +483,10 @@ int Unsplit (const Data *d, Riemann_Solver *Riemann,
   #ifdef FARGO
    FARGO_AddVelocity (d,grid); 
   #endif
+#if HALL_MHD == RIEMANN
+    /* Compute currents needed by Hall Effect */
+    ComputeCurrent(d->Vc, grid);
+#endif
   return(0); /* -- step has been achieved, return success -- */
 }
 

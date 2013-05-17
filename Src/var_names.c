@@ -30,6 +30,12 @@ void SetDefaultVarNames(Output *output)
    EXPAND(output->var_name[BX1] = "bx1";  ,
           output->var_name[BX2] = "bx2";  ,
           output->var_name[BX3] = "bx3";)
+#if HALL_MHD == RIEMANN
+    EXPAND(output->var_name[JX1] = "jx1";  ,
+           output->var_name[JX2] = "jx2";  ,
+           output->var_name[JX3] = "jx3";)
+#endif
+    
   #endif
   
   /* (staggered field names are set in SetOutput) */
