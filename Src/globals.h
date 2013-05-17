@@ -73,6 +73,9 @@ long int NMAX_POINT;  /**< Maximum number of points among the three
 int VXn, VXt, VXb; 
 int MXn, MXt, MXb;
 int BXn, BXt, BXb;
+#if HALL_MHD == RIEMANN
+int JXn, JXt, JXb;
+#endif
 /**@} */
                
 int *g_i; /**< Pointer to the x1 grid index when sweeping along the x2 or x3

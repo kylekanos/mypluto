@@ -50,7 +50,7 @@ void MaxSignalSpeed (double **v, double *cs2, double *cmin, double *cmax,
 {
   int  i;
   double gpr, Bmag2, Btmag2;
-  double cf;
+  double cf,cw;
   double b1, b2, b3;
 
   #if EOS == BAROTROPIC
@@ -88,6 +88,14 @@ void MaxSignalSpeed (double **v, double *cs2, double *cmin, double *cmax,
     cf = gpr - Bmag2;
     cf = gpr + Bmag2 + sqrt(cf*cf + 4.0*gpr*Btmag2);
     cf = sqrt(0.5*cf/v[i][RHO]);
+      
+#if HALL_MHD == RIEMANN
+      // Whistler wave speed estimate
+      cw=hall_xh*hall_xh*Bmag2*hall_invdmin*hall_invdmin + Bmag2/v[i][RHO];
+      cw=fabs(hall_xh)*sqrt(Bmag2)*hall_invdmin + sqrt(cw));
+      
+      if(cw>cf) cf=cw;
+#endif
     cmin[i] = v[i][VXn] - cf;
     cmax[i] = v[i][VXn] + cf;
 /*

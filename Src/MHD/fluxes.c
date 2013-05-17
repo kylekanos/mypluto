@@ -85,9 +85,18 @@ void Flux (double **ucons, double **wprim, double *a2, double **bck,
             fx[i][MX2] = w[VXn]*u[MX2] - w[BXn]*w[BX2];  ,
             fx[i][MX3] = w[VXn]*u[MX3] - w[BXn]*w[BX3]; ) 
 
+
      EXPAND(fx[i][BXn] = 0.0;                         ,
             fx[i][BXt] = w[VXn]*w[BXt] - w[BXn]*w[VXt];   ,
             fx[i][BXb] = w[VXn]*w[BXb] - w[BXn]*w[VXb]; )
+      
+#if HALL_MHD == RIEMANN
+      EXPAND(fx[i][BXn] -= 0.0;                         ,
+             fx[i][BXt] -= hall_xh*(w[JXn]*w[BXt] - w[BXn]*w[JXt]);   ,
+             fx[i][BXb] -= hall_xh*(w[JXn]*w[BXb] - w[BXn]*w[JXb]); )
+#endif
+      
+      
      #if EOS == IDEAL
       fx[i][ENG] = (u[ENG] + ptot)*w[VXn] - w[BXn]*vB;
      #endif

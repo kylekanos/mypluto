@@ -70,6 +70,11 @@ void SetIndexes (Index *indx, Grid *grid)
      EXPAND(BXn = BX1; , 
             BXt = BX2; ,  
             BXb = BX3;)
+     #if HALL_MHD == RIEMANN
+     EXPAND(JXn = JX1; ,
+            JXt = JX2; ,
+            JXb = JX3;)
+     #endif
     #endif
 
     indx->ntot   = grid[IDIR].np_tot;
@@ -86,6 +91,11 @@ void SetIndexes (Index *indx, Grid *grid)
      EXPAND(BXn = BX2; , 
             BXt = BX1; ,  
             BXb = BX3;)
+    #if HALL_MHD == RIEMANN
+      EXPAND(JXn = JX2; ,
+             JXt = JX1; ,
+             JXb = JX3;)
+    #endif
     #endif
     
     indx->ntot   = grid[JDIR].np_tot;
@@ -102,6 +112,11 @@ void SetIndexes (Index *indx, Grid *grid)
      BXn = BX3;
      BXt = BX1;
      BXb = BX2;
+    #if HALL_MHD == RIEMANN
+      JXn = JX3; ,
+      JXt = JX1; ,
+      JXb = JX2;)
+    #endif
     #endif
 
     indx->ntot   = grid[KDIR].np_tot;

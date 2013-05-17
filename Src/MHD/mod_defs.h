@@ -50,6 +50,10 @@ enum {
   #if MHD_FORMULATION == DIV_CLEANING
    PSI_GLM,
   #endif
+  #if HALL_MHD == RIEMANN
+    JX1, JX2, JX3
+  #endif
+    
 
  #endif
 
@@ -81,7 +85,7 @@ enum {
 #endif
 */
 
-#define NFLX (2*COMPONENTS + (EOS == IDEAL ? 2:1) + (MHD_FORMULATION == DIV_CLEANING))
+#define NFLX (2*COMPONENTS + (EOS == IDEAL ? 2:1) + (MHD_FORMULATION == DIV_CLEANING) + 3*(HALL_MHD==RIEMANN))
 
 /* ********************************************************************* */
 /*! Label the different waves in increasing order 

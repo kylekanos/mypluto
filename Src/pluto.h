@@ -1059,6 +1059,9 @@ extern long int NMAX_POINT;
 extern int VXn, VXt, VXb;
 extern int MXn, MXt, MXb;
 extern int BXn, BXt, BXb;
+#if HALL_MHD == RIEMANN
+extern int JXn, JXt, JXb;
+#endif
 
 extern int *g_i, *g_j, *g_k;
 
