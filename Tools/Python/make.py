@@ -368,7 +368,7 @@ def problem(work_dir, pluto_path, pluto_dir, additional_files,
     default_MHD.append('NO')
     
     entries_MHD.append('HALL_MHD')
-    options_MHD.append(['NO','EXPLICIT'])
+    options_MHD.append(['NO','EXPLICIT','RIEMANN'])
     default_MHD.append('NO')
 
     entries_MHD.append('THERMAL_CONDUCTION')

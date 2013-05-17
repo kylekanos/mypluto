@@ -92,7 +92,7 @@ void MaxSignalSpeed (double **v, double *cs2, double *cmin, double *cmax,
 #if HALL_MHD == RIEMANN
       // Whistler wave speed estimate
       cw=hall_xh*hall_xh*Bmag2*hall_invdmin*hall_invdmin + Bmag2/v[i][RHO];
-      cw=fabs(hall_xh)*sqrt(Bmag2)*hall_invdmin + sqrt(cw));
+      cw=fabs(hall_xh)*sqrt(Bmag2)*hall_invdmin + sqrt(cw);
       
       if(cw>cf) cf=cw;
 #endif

@@ -113,9 +113,9 @@ void SetIndexes (Index *indx, Grid *grid)
      BXt = BX1;
      BXb = BX2;
     #if HALL_MHD == RIEMANN
-      JXn = JX3; ,
-      JXt = JX1; ,
-      JXb = JX2;)
+      JXn = JX3;
+      JXt = JX1;
+      JXb = JX2;
     #endif
     #endif
 

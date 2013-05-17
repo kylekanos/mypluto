@@ -23,9 +23,9 @@ void ComputeCurrent(Data_Arr V, Grid *grid) {
     double ***Jx, ***Jy, ***Jz;
     double dxBy, dxBz, dyBx, dyBz, dzBx, dzBy;
     
-    D_EXPAND(inv_dx  = grid[IDIR].inv_dx; inv_dxi = grid[IDIR].inv_dxi;  ,
-             inv_dy  = grid[JDIR].inv_dx; inv_dyi = grid[JDIR].inv_dxi;  ,
-             inv_dz  = grid[KDIR].inv_dx; inv_dzi = grid[KDIR].inv_dxi;)
+    D_EXPAND(inv_dx  = grid[IDIR].inv_dx;  ,
+             inv_dy  = grid[JDIR].inv_dx;  ,
+             inv_dz  = grid[KDIR].inv_dx;)
     
     EXPAND(Bx = V[BX1]; ,
            By = V[BX2]; ,

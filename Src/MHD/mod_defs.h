@@ -51,7 +51,7 @@ enum {
    PSI_GLM,
   #endif
   #if HALL_MHD == RIEMANN
-    JX1, JX2, JX3
+    JX1, JX2, JX3,
   #endif
     
 

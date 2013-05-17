@@ -82,6 +82,7 @@
 #define EXPLICIT             1 /* -- just a number different from 0 !!!  -- */
 #define SUPER_TIME_STEPPING  2 /* -- just a number different from EXPLICIT -- */ 
 #define RK_CHEBYSHEV         4  
+#define RIEMANN              8
 
      /*  ----   Output labels:  ---- */
 

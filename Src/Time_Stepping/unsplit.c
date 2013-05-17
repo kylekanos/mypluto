@@ -82,7 +82,11 @@ int Unsplit (const Data *d, Riemann_Solver *Riemann,
     #endif
     #if HALL_MHD == RIEMANN
     /* Nasty trick to get the minimum grid cell in the riemann solver to compute whistlers velocity */
-      hall_invdmin = 1.0/grid[IDIR].dl_min;
+      hall_invdmin = grid[IDIR].dl_min;
+      if(grid[JDIR].dl_min<hall_invdmin) hall_invdmin = grid[JDIR].dl_min;
+      if(grid[KDIR].dl_min<hall_invdmin) hall_invdmin = grid[KDIR].dl_min;
+      
+      hall_invdmin=1.0/hall_invdmin;
     #endif
   }
 
@@ -94,7 +98,7 @@ int Unsplit (const Data *d, Riemann_Solver *Riemann,
   dt = g_dt;
 #if HALL_MHD == RIEMANN
     /* Compute currents needed by Hall Effect */
-    ComputeCurrent(d->V, grid);
+    ComputeCurrent(d->Vc, grid);
 #endif
   Boundary (d, ALL_DIR, grid);
   #ifdef FARGO
@@ -249,7 +253,7 @@ int Unsplit (const Data *d, Riemann_Solver *Riemann,
    g_intStage = 2;
 #if HALL_MHD == RIEMANN
     /* Compute currents needed by Hall Effect */
-    ComputeCurrent(d->V, grid);
+    ComputeCurrent(d->Vc, grid);
 #endif
    #ifdef FARGO
     FARGO_AddVelocity (d,grid); 
@@ -354,7 +358,7 @@ int Unsplit (const Data *d, Riemann_Solver *Riemann,
    g_intStage = 3;
    #if HALL_MHD == RIEMANN
     /* Compute currents needed by Hall Effect */
-    ComputeCurrent(d->V, grid);
+    ComputeCurrent(d->Vc, grid);
    #endif
    #ifdef FARGO
     FARGO_AddVelocity (d,grid); 
