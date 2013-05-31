@@ -736,6 +736,10 @@ typedef struct STATE_1D{
   double **flux;    /**< upwind flux computed with the Riemann solver */
   double **par_flx; /**< parabolic fluxes (viscosity + thermal cond. +
                           resistivity) */
+#if HALL_MHD == RIEMANN
+  double *lHall;
+  double *dlmin;
+#endif
   double **pnt_flx;
   double **dff_flx;
 

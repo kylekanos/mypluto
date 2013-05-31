@@ -355,6 +355,11 @@ void MakeState (State_1D *state)
   state->SL      = ARRAY_1D(NMAX_POINT, double);
   state->SR      = ARRAY_1D(NMAX_POINT, double);
 
+#if HALL_MHD == RIEMANN
+  state->lHall   = ARRAY_1D(NMAX_POINT, double);
+  state->dlmin   = ARRAY_1D(NMAX_POINT, double);
+#endif
+
 /* -- eigenvectors -- */
 
   state->Lp      = ARRAY_3D(NMAX_POINT, NFLX, NFLX, double);

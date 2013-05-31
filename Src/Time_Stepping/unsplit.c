@@ -175,6 +175,10 @@ int Unsplit (const Data *d, Riemann_Solver *Riemann,
         #ifdef STAGGERED_MHD
          state.bn[in] = d->Vs[g_dir][*k][*j][*i];
         #endif
+        #if HALL_MHD == RIEMANN
+        	lHall_Func (state.v[in], grid[IDIR].x[*i], grid[JDIR].x[*j], grid[JDIR].x[*k], &state.lHall[in]);
+         	state.dlmin[in] = grid[g_dir].dx[in];
+        #endif
       }
       CheckNaN (state.v, 0, indx.ntot-1,0);
       States  (&state, indx.beg - 1, indx.end + 1, grid); 
@@ -296,6 +300,10 @@ int Unsplit (const Data *d, Riemann_Solver *Riemann,
          #ifdef STAGGERED_MHD
           state.bn[in] = d->Vs[g_dir][*k][*j][*i];
          #endif
+         #if HALL_MHD == RIEMANN
+        	lHall_Func (state.v[in], grid[IDIR].x[*i], grid[JDIR].x[*j], grid[JDIR].x[*k], &state.lHall[in]);
+         	state.dlmin[in] = grid[g_dir].dx[in];
+        #endif
        }
 
        States  (&state, indx.beg - 1, indx.end + 1, grid);     
@@ -394,6 +402,10 @@ int Unsplit (const Data *d, Riemann_Solver *Riemann,
          #ifdef STAGGERED_MHD
           state.bn[in] = d->Vs[g_dir][*k][*j][*i];
          #endif
+         #if HALL_MHD == RIEMANN
+        	lHall_Func (state.v[in], grid[IDIR].x[*i], grid[JDIR].x[*j], grid[JDIR].x[*k], &state.lHall[in]);
+         	state.dlmin[in] = grid[g_dir].dx[in];
+        #endif
        }
 
        States  (&state, indx.beg - 1, indx.end + 1, grid);

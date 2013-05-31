@@ -12,9 +12,6 @@
 /* ///////////////////////////////////////////////////////////////////// */
 #include "pluto.h"
 
-double hall_xh;
-double hall_invdmin;
-
 void ComputeCurrent(Data_Arr V, Grid *grid) {
     int  i, j, k;
     double dx_1, dy_1, dz_1;
@@ -36,6 +33,7 @@ void ComputeCurrent(Data_Arr V, Grid *grid) {
     Jz = V[JX3];
     
     DOM_LOOP(k,j,i) {
+      
         dx_1 = inv_dx[i];
         dy_1 = inv_dy[j];
         dz_1 = inv_dz[k];
@@ -47,9 +45,9 @@ void ComputeCurrent(Data_Arr V, Grid *grid) {
         dzBx = 0.5*(Bx[k+1][j][i]-Bx[k-1][j][i])*dz_1;
         dzBy = 0.5*(By[k+1][j][i]-By[k-1][j][i])*dz_1;
         
-        Jx[k][j][i] = dyBz - dzBy;
-        Jy[k][j][i] = dzBx - dxBz;
-        Jz[k][j][i] = dxBy - dyBx;
+        Jx[k][j][i] = (dyBz - dzBy);
+        Jy[k][j][i] = (dzBx - dxBz);
+        Jz[k][j][i] = (dxBy - dyBx);
     }
     
 }
