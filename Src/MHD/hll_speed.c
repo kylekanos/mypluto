@@ -6,8 +6,13 @@
 #define DAVIS_ESTIMATE  YES   
 
 /* ***************************************************************************** */
+#if HALL_MHD == RIEMANN
+void HLL_Speed (double **vL, double **vR, double *a2L, double *a2R, double **bgf, 
+                double *SL, double *SR, int beg, int end, double *lHall, double *dlmin)
+#else
 void HLL_Speed (double **vL, double **vR, double *a2L, double *a2R, double **bgf, 
                 double *SL, double *SR, int beg, int end)
+#endif
 /* 
  * PURPOSE
  *
@@ -70,10 +75,13 @@ void HLL_Speed (double **vL, double **vR, double *a2L, double *a2R, double **bgf
    ---------------------------------------------- */
 
   #if DAVIS_ESTIMATE == YES
-
+#if HALL_MHD == RIEMANN
+   MaxSignalSpeed (vL, a2L, sl_min, sl_max, bgf, beg, end, lHall, dmin);
+   MaxSignalSpeed (vR, a2R, sr_min, sr_max, bgf, beg, end, lHall, dmin);
+#else
    MaxSignalSpeed (vL, a2L, sl_min, sl_max, bgf, beg, end);
    MaxSignalSpeed (vR, a2R, sr_min, sr_max, bgf, beg, end);
-
+#endif
    for (i = beg; i <= end; i++) {
 
     SL[i] = MIN(sl_min[i], sr_min[i]);

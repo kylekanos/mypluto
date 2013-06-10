@@ -20,9 +20,13 @@
 #include "pluto.h"
 
 /* ********************************************************************* */
+#if HALL_MHD == RIEMANN
+void Flux (double **ucons, double **wprim, double *a2, double **bck, 
+           double **fx, double *p, int beg, int end, double *lHall)
+#else
 void Flux (double **ucons, double **wprim, double *a2, double **bck, 
            double **fx, double *p, int beg, int end)
-
+#endif
 /*!
  * \param [in]     ucons   1D array of conserved quantities
  * \param [in]     wprim   1D array of primitive quantities
@@ -92,8 +96,8 @@ void Flux (double **ucons, double **wprim, double *a2, double **bck,
       
 #if HALL_MHD == RIEMANN
       EXPAND(fx[i][BXn] -= 0.0;                         ,
-             fx[i][BXt] -= hall_xh*(w[JXn]*w[BXt] - w[BXn]*w[JXt]);   ,
-             fx[i][BXb] -= hall_xh*(w[JXn]*w[BXb] - w[BXn]*w[JXb]); )
+             fx[i][BXt] -= lHall[i]*(w[JXn]*w[BXt] - w[BXn]*w[JXt]);   ,
+             fx[i][BXb] -= lHall[i]*(w[JXn]*w[BXb] - w[BXn]*w[JXb]); )
 #endif
       
       

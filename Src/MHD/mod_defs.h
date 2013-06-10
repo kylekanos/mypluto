@@ -209,11 +209,27 @@ void ConsEigenvectors (double *, double *, double,
 void Enthalpy (double **, double *, int, int );
 void Entropy  (double **, double *, int, int );
 
+#if HALL_MHD == RIEMANN
+void Flux      (double **, double **, double *, double **, double **,
+                double *, int, int, double *);
+#else
 void Flux      (double **, double **, double *, double **, double **,
                 double *, int, int);
+#endif
+void HLL_Speed (double **, double **, double *, double *, double **, 
+                double *, double *, int, int);
+#if HALL_MHD == RIEMANN
+// Add two extra arrays to handle ionization fraction and grid spacing
+void HLL_Speed (double **, double **, double *, double *, double **, 
+                double *, double *, int, int, double *, double *);
+void MaxSignalSpeed (double **, double *, double *, double *, double **, int, int, double *, double *);
+#else
 void HLL_Speed (double **, double **, double *, double *, double **, 
                 double *, double *, int, int);
 void MaxSignalSpeed (double **, double *, double *, double *, double **, int, int);
+#endif
+
+
 void PrimToCons   (double **, double **, int, int);
 void PrimRHS    (double *, double *, double, double, double *);
 void PrimSource (const State_1D *, int, int, 

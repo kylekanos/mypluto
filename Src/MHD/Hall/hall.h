@@ -12,9 +12,6 @@
 */
 /* ///////////////////////////////////////////////////////////////////// */
 
-extern double hall_xh;
-extern double hall_invdmin;
-
 void HallFlux (Data_Arr, double **, double **, int, int, Grid *);
 void ComputeCurrent(Data_Arr, Grid *);
 void GetFullCurrent (Data_Arr, real **, Grid *);

@@ -32,8 +32,13 @@
 #include "pluto.h"
 
 /* ********************************************************************* */
+#if HALL_MHD == RIEMANN
+void MaxSignalSpeed (double **v, double *cs2, double *cmin, double *cmax,
+                     double **bgf, int beg, int end, double *lHall, double *dlmin))
+#else
 void MaxSignalSpeed (double **v, double *cs2, double *cmin, double *cmax,
                      double **bgf, int beg, int end)
+#endif
 /*!
  * Compute the maximum and minimum characteristic velocities for the 
  * MHD equation, cmin= v - cf, cmax = v + cf
@@ -91,8 +96,8 @@ void MaxSignalSpeed (double **v, double *cs2, double *cmin, double *cmax,
       
 #if HALL_MHD == RIEMANN
       // Whistler wave speed estimate
-      cw=hall_xh*hall_xh*Bmag2*hall_invdmin*hall_invdmin + Bmag2/v[i][RHO];
-      cw=fabs(hall_xh)*sqrt(Bmag2)*hall_invdmin + sqrt(cw);
+      cw=lHall[i]*lHall[i]*Bmag2/(dlmin[i]*dlmin[i]) + Bmag2/v[i][RHO];
+      cw=fabs(lHall[i])*sqrt(Bmag2)/dlmin[i] + sqrt(cw);
       
       if(cw>cf) cf=cw;
 #endif
