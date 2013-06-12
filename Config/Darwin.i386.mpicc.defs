@@ -5,7 +5,7 @@
 ########################################################################
 
 CC       = mpicc
-CFLAGS   = -c -fast -finline-functions -Winline
+CFLAGS   = -c -O3 -finline-functions -Winline
 LDFLAGS  = -bind_at_load -lm 
 
 PARALLEL = TRUE   

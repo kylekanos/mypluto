@@ -76,8 +76,8 @@ void HLL_Speed (double **vL, double **vR, double *a2L, double *a2R, double **bgf
 
   #if DAVIS_ESTIMATE == YES
 #if HALL_MHD == RIEMANN
-   MaxSignalSpeed (vL, a2L, sl_min, sl_max, bgf, beg, end, lHall, dmin);
-   MaxSignalSpeed (vR, a2R, sr_min, sr_max, bgf, beg, end, lHall, dmin);
+   MaxSignalSpeed (vL, a2L, sl_min, sl_max, bgf, beg, end, lHall, dlmin);
+   MaxSignalSpeed (vR, a2R, sr_min, sr_max, bgf, beg, end, lHall, dlmin);
 #else
    MaxSignalSpeed (vL, a2L, sl_min, sl_max, bgf, beg, end);
    MaxSignalSpeed (vR, a2R, sr_min, sr_max, bgf, beg, end);

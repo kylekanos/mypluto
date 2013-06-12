@@ -34,7 +34,7 @@
 /* ********************************************************************* */
 #if HALL_MHD == RIEMANN
 void MaxSignalSpeed (double **v, double *cs2, double *cmin, double *cmax,
-                     double **bgf, int beg, int end, double *lHall, double *dlmin))
+                     double **bgf, int beg, int end, double *lHall, double *dlmin)
 #else
 void MaxSignalSpeed (double **v, double *cs2, double *cmin, double *cmax,
                      double **bgf, int beg, int end)
@@ -96,8 +96,8 @@ void MaxSignalSpeed (double **v, double *cs2, double *cmin, double *cmax,
       
 #if HALL_MHD == RIEMANN
       // Whistler wave speed estimate
-      cw=lHall[i]*lHall[i]*Bmag2/(dlmin[i]*dlmin[i]) + Bmag2/v[i][RHO];
-      cw=fabs(lHall[i])*sqrt(Bmag2)/dlmin[i] + sqrt(cw);
+      cw=lHall[i]*lHall[i]*Bmag2/(4.0*dlmin[i]*dlmin[i]) + Bmag2/v[i][RHO];
+      cw=fabs(lHall[i])*sqrt(Bmag2)/(2.0*dlmin[i]) + sqrt(cw);
       
       if(cw>cf) cf=cw;
 #endif

@@ -119,10 +119,13 @@ void Roe_Solver (const State_1D *state, int beg, int end,
 
   SoundSpeed2 (VL, a2L, NULL, beg, end, FACE_CENTER, grid);
   SoundSpeed2 (VR, a2R, NULL, beg, end, FACE_CENTER, grid);
-
+#if HALL_MHD == RIEMANN
+  Flux  (UL, VL, a2L, bgf, fL, pL, beg, end,NULL);
+  Flux  (UR, VR, a2R, bgf, fR, pR, beg, end,NULL);
+#else
   Flux  (UL, VL, a2L, bgf, fL, pL, beg, end);
   Flux  (UR, VR, a2R, bgf, fR, pR, beg, end);
-
+#endif
   SL = state->SL; SR = state->SR;
 
   #if EOS != ISOTHERMAL && EOS != BAROTROPIC
@@ -149,8 +152,11 @@ void Roe_Solver (const State_1D *state, int beg, int end,
   /* -- revert to HLL in proximity of strong shock -- */
 
      if (CheckZone(i, FLAG_HLL) || CheckZone(i+1,FLAG_HLL)){
+#if HALL_MHD == RIEMANN
+       HLL_Speed (VL, VR, a2L, a2R, NULL, SL, SR, i, i, NULL, NULL);
+#else
        HLL_Speed (VL, VR, a2L, a2R, NULL, SL, SR, i, i);
-
+#endif
        scrh0 = MAX(fabs(SL[i]), fabs(SR[i]));
        cmax[i] = scrh0;
 

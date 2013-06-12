@@ -87,9 +87,13 @@ void LF_Solver (const State_1D *state, int beg, int end,
   SoundSpeed2 (VL, a2L, NULL, beg, end, FACE_CENTER, grid);
   SoundSpeed2 (VR, a2R, NULL, beg, end, FACE_CENTER, grid);
 
+#if HALL_MHD == RIEMANN
+  Flux (UL, VL, a2L, bgf, fL, pL, beg, end, NULL);
+  Flux (UR, VR, a2R, bgf, fR, pR, beg, end, NULL);
+#else
   Flux (UL, VL, a2L, bgf, fL, pL, beg, end);
   Flux (UR, VR, a2R, bgf, fR, pR, beg, end);
-
+#endif
 /* ------------------------------------------------------
             Compute max eigenvalue and fluxes
    ------------------------------------------------------ */
@@ -109,8 +113,11 @@ void LF_Solver (const State_1D *state, int beg, int end,
   }
 
   SoundSpeed2    (vRL, a2R, NULL, beg, end, FACE_CENTER, grid);
+#if HALL_MHD == RIEMANN
+  MaxSignalSpeed (vRL, a2R, cmin_RL, cmax_RL, bgf, beg, end, NULL, NULL);
+#else
   MaxSignalSpeed (vRL, a2R, cmin_RL, cmax_RL, bgf, beg, end);
-
+#endif
   for (i = beg; i <= end; i++) {
     cRL = MAX(fabs(cmin_RL[i]), fabs(cmax_RL[i]));
     state->SL[i] = -cRL, state->SR[i] = cRL;

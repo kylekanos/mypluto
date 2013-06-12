@@ -123,17 +123,25 @@ state->uR = UR;
 
   SoundSpeed2 (VL, a2L, NULL, beg, end, FACE_CENTER, grid);
   SoundSpeed2 (VR, a2R, NULL, beg, end, FACE_CENTER, grid);
-
+#if HALL_MHD == RIEMANN
+/* not yet implemented HALL flux in HALLD */
+  Flux (UL, VL, a2L, NULL, fL, ptL, beg, end,NULL);
+  Flux (UR, VR, a2R, NULL, fR, ptR, beg, end,NULL);
+#else
   Flux (UL, VL, a2L, NULL, fL, ptL, beg, end);
   Flux (UR, VR, a2R, NULL, fR, ptR, beg, end);
+#endif
 
 /* ----------------------------------------
      get max and min signal velocities
    ---------------------------------------- */
              
   SL = state->SL; SR = state->SR;
+#if HALL_MHD == RIEMANN
+  HLL_Speed (VL, VR, a2L, a2R, NULL, SL, SR, beg, end, NULL,NULL);
+#else
   HLL_Speed (VL, VR, a2L, a2R, NULL, SL, SR, beg, end);
-
+#endif
   for (i = beg; i <= end; i++) {
     
   /* ----------------------------------------
@@ -505,16 +513,24 @@ void HLLD_Solver (const State_1D *state, int beg, int end,
   SoundSpeed2 (VL, a2L, NULL, beg, end, FACE_CENTER, grid);
   SoundSpeed2 (VR, a2R, NULL, beg, end, FACE_CENTER, grid);
 
+#if HALL_MHD == RIEMANN
+  Flux (UL, VL, a2L, NULL, fL, ptL, beg, end,NULL);
+  Flux (UR, VR, a2R, NULL, fR, ptR, beg, end,NULL);
+#else
   Flux (UL, VL, a2L, NULL, fL, ptL, beg, end);
   Flux (UR, VR, a2R, NULL, fR, ptR, beg, end);
+#endif
 
 /* ----------------------------------------
       get max and min signal velocities
    ---------------------------------------- */
              
   SL = state->SL; SR = state->SR;
-  HLL_Speed (VL, VR, a2L, a2R, NULL, SL, SR, beg, end);
+#if HALL_MHD == RIEMANN
 
+#else
+  HLL_Speed (VL, VR, a2L, a2R, NULL, SL, SR, beg, end);
+#endif
   for (i = beg; i <= end; i++) {
     
   /* ----------------------------------------

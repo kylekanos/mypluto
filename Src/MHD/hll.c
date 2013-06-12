@@ -40,6 +40,7 @@ void HLL_Solver (const State_1D *state, int beg, int end,
   static double *pL, *pR, *a2L, *a2R;
 #if HALL_MHD == RIEMANN
   static double *dlmin, *lHall;
+#endif
   double **bgf;
     
   if (fL == NULL){
@@ -81,6 +82,11 @@ void HLL_Solver (const State_1D *state, int beg, int end,
    VR = state->vR; UR = state->uR;
   #endif
 
+#if HALL_MHD == RIEMANN
+  lHall = state->lHall;
+  dlmin = state->dlmin;
+#endif
+
 /* ----------------------------------------------------
      compute sound speed & fluxes at zone interfaces
    ---------------------------------------------------- */
@@ -102,8 +108,6 @@ void HLL_Solver (const State_1D *state, int beg, int end,
              
   SL = state->SL; SR = state->SR;
 #if HALL_MHD == RIEMANN
-  lHall = state->lHall;
-  dlmin = state->dlmin;
   HLL_Speed (VL, VR, a2L, a2R, bgf, SL, SR, beg, end, lHall, dlmin);
 #else
   HLL_Speed (VL, VR, a2L, a2R, bgf, SL, SR, beg, end);
