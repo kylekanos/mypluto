@@ -168,7 +168,7 @@ int Unsplit (const Data *d, Riemann_Solver *Riemann,
          state.bn[in] = d->Vs[g_dir][*k][*j][*i];
         #endif
         #if HALL_MHD == RIEMANN
-        	lHall_Func (state.v[in], grid[IDIR].x[*i], grid[JDIR].x[*j], grid[JDIR].x[*k], &state.lHall[in]);
+        	lHall_Func (state.v[in], grid[IDIR].x[*i], grid[JDIR].x[*j], grid[KDIR].x[*k], &state.lHall[in]);
          	state.dlmin[in] = grid[g_dir].dx[in];
         #endif
       }
@@ -293,7 +293,7 @@ int Unsplit (const Data *d, Riemann_Solver *Riemann,
           state.bn[in] = d->Vs[g_dir][*k][*j][*i];
          #endif
          #if HALL_MHD == RIEMANN
-        	lHall_Func (state.v[in], grid[IDIR].x[*i], grid[JDIR].x[*j], grid[JDIR].x[*k], &state.lHall[in]);
+        	lHall_Func (state.v[in], grid[IDIR].x[*i], grid[JDIR].x[*j], grid[KDIR].x[*k], &state.lHall[in]);
          	state.dlmin[in] = grid[g_dir].dx[in];
         #endif
        }
@@ -395,7 +395,7 @@ int Unsplit (const Data *d, Riemann_Solver *Riemann,
           state.bn[in] = d->Vs[g_dir][*k][*j][*i];
          #endif
          #if HALL_MHD == RIEMANN
-        	lHall_Func (state.v[in], grid[IDIR].x[*i], grid[JDIR].x[*j], grid[JDIR].x[*k], &state.lHall[in]);
+        	lHall_Func (state.v[in], grid[IDIR].x[*i], grid[JDIR].x[*j], grid[KDIR].x[*k], &state.lHall[in]);
          	state.dlmin[in] = grid[g_dir].dx[in];
         #endif
        }
