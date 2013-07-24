@@ -174,46 +174,7 @@ void ParabolicFlux (Data_Arr V, const State_1D *state,
      #endif
    }
   #endif 
-    
-/* -------------------------------------------------
-  4. HALL effect
-------------------------------------------------- */
-
-#if HALL_MHD == EXPLICIT
-    {
-        HallFlux (V, state->par_flx, dcoeff, beg, end, grid);
-        for (i = beg; i <= end; i++){
-            
-            /* ------------------------------------------
-             normal component of magnetic field does
-             not evolve during the current sweep.
-             ------------------------------------------ */
-            
-            state->par_flx[i][BXn] = 0.0;  
-
-            /* ---------------------------------------------
-             add the parabolic part of the EMF, although
-             this step is done after the hyperbolic part
-             has already been saved in CT_StoreEMF.
-             This is useful only for cell-centered MHD.
-             --------------------------------------------- */
-            
-            EXPAND(state->flux[i][BX1] += state->par_flx[i][BX1];  ,
-                   state->flux[i][BX2] += state->par_flx[i][BX2];  ,
-                   state->flux[i][BX3] += state->par_flx[i][BX3]; )
-            
-/* Hall Effect does not have any energetic contribution */
-        }
-        
-        /* ------------------------------------------
-         now save the parabolic part of the EMF
-         ------------------------------------------ */
-        
-#ifdef STAGGERED_MHD
-        CT_StoreHallEMF (state->par_flx, beg, end, grid);
-#endif
-    }
-#endif
+   
     
     
 

@@ -77,9 +77,6 @@ int Unsplit (const Data *d, Riemann_Solver *Riemann,
     #if THERMAL_CONDUCTION == EXPLICIT
      C_dt[ENG] = ARRAY_3D(NX3_TOT, NX2_TOT, NX1_TOT, double);
     #endif
-    #if HALL_MHD == EXPLICIT
-     C_dt[MX2] = ARRAY_3D(NX3_TOT, NX2_TOT, NX1_TOT, double);
-    #endif
   }
 
 /* ----------------------------------------------------
@@ -123,9 +120,6 @@ int Unsplit (const Data *d, Riemann_Solver *Riemann,
     #endif
     #if THERMAL_CONDUCTION == EXPLICIT
      memset ((void *)C_dt[ENG][kk][jj],'\0', NX1_TOT*sizeof(double));  
-    #endif
-    #if HALL_MHD == EXPLICIT
-      memset ((void *)C_dt[MX2][kk][jj],'\0', NX1_TOT*sizeof(double));
     #endif
     
 /*
@@ -206,10 +200,6 @@ int Unsplit (const Data *d, Riemann_Solver *Riemann,
         #if THERMAL_CONDUCTION  == EXPLICIT
          dl2 = 0.5*inv_dl[in]*inv_dl[in];
          C_dt[ENG][*k][*j][*i] += (dcoeff[in-1][ENG] + dcoeff[in][ENG])*dl2;
-        #endif
-        #if HALL_MHD == EXPLICIT
-         dl2 = 0.5*inv_dl[in]*inv_dl[in];
-         C_dt[MX2][*k][*j][*i] += (dcoeff[in-1][MX2] + dcoeff[in][MX2])*dl2;
         #endif
         for (nv = NVAR; nv--;  )  UU_1[*k][*j][*i][nv] += state.rhs[in][nv];
       }
@@ -470,10 +460,6 @@ int Unsplit (const Data *d, Riemann_Solver *Riemann,
       #endif
       #if THERMAL_CONDUCTION == EXPLICIT
        Dts->inv_dtp = MAX(Dts->inv_dtp, C_dt[ENG][kk][jj][ii]);
-      #endif
-      #if HALL_MHD == EXPLICIT
-        // Since hall is essentially parabolic, maybe Dts->inv_dta should be used here... Not sure
-        Dts->inv_dtp = MAX(Dts->inv_dtp, C_dt[MX2][kk][jj][ii]);
       #endif
     }
   }}
