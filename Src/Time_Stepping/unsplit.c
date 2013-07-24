@@ -61,7 +61,7 @@ int Unsplit (const Data *d, Riemann_Solver *Riemann,
       We use C_dt[RHO] for advection, 
              C_dt[MX1] for viscosity,
              C_dt[BX1...BX3] for resistivity
-             C_dt[MX2] for Hall MHD and
+             C_dt[MX2] for ambipolar diffusion MHD and
              C_dt[ENG] for thermal conduction.
      ------------------------------------------------------- */
       
@@ -73,6 +73,9 @@ int Unsplit (const Data *d, Riemann_Solver *Riemann,
      EXPAND(C_dt[BX1] = ARRAY_3D(NX3_TOT, NX2_TOT, NX1_TOT, double); ,
             C_dt[BX2] = ARRAY_3D(NX3_TOT, NX2_TOT, NX1_TOT, double); ,
             C_dt[BX3] = ARRAY_3D(NX3_TOT, NX2_TOT, NX1_TOT, double);)
+    #endif
+    #if AMBIPOLAR_DIFFUSION == EXPLICIT
+         	C_dt[MX2] = ARRAY_3D(NX3_TOT, NX2_TOT, NX1_TOT, double);
     #endif
     #if THERMAL_CONDUCTION == EXPLICIT
      C_dt[ENG] = ARRAY_3D(NX3_TOT, NX2_TOT, NX1_TOT, double);
@@ -117,6 +120,9 @@ int Unsplit (const Data *d, Riemann_Solver *Riemann,
      EXPAND(memset ((void *)C_dt[BX1][kk][jj],'\0', NX1_TOT*sizeof(double));  ,
             memset ((void *)C_dt[BX2][kk][jj],'\0', NX1_TOT*sizeof(double));  ,
             memset ((void *)C_dt[BX3][kk][jj],'\0', NX1_TOT*sizeof(double));)
+    #endif
+    #if AMBIPOLAR_DIFFUSION == EXPLICIT
+            memset ((void *)C_dt[MX2][kk][jj],'\0', NX1_TOT*sizeof(double));  
     #endif
     #if THERMAL_CONDUCTION == EXPLICIT
      memset ((void *)C_dt[ENG][kk][jj],'\0', NX1_TOT*sizeof(double));  
@@ -196,6 +202,10 @@ int Unsplit (const Data *d, Riemann_Solver *Riemann,
          EXPAND(C_dt[BX1][*k][*j][*i] += (dcoeff[in-1][BX1]+dcoeff[in][BX1])*dl2;  ,
                 C_dt[BX2][*k][*j][*i] += (dcoeff[in-1][BX2]+dcoeff[in][BX2])*dl2;  ,
                 C_dt[BX3][*k][*j][*i] += (dcoeff[in-1][BX3]+dcoeff[in][BX3])*dl2;)
+        #endif
+        #if AMBIPOLAR_DIFFUSION  == EXPLICIT
+         dl2 = 0.5*inv_dl[in]*inv_dl[in];
+         C_dt[MX2][*k][*j][*i] += (dcoeff[in-1][MX2] + dcoeff[in][MX2])*dl2;
         #endif
         #if THERMAL_CONDUCTION  == EXPLICIT
          dl2 = 0.5*inv_dl[in]*inv_dl[in];
@@ -457,6 +467,9 @@ int Unsplit (const Data *d, Riemann_Solver *Riemann,
        EXPAND(Dts->inv_dtp = MAX(Dts->inv_dtp, C_dt[BX1][kk][jj][ii]);  ,
               Dts->inv_dtp = MAX(Dts->inv_dtp, C_dt[BX2][kk][jj][ii]);  ,
               Dts->inv_dtp = MAX(Dts->inv_dtp, C_dt[BX3][kk][jj][ii]);)
+      #endif
+      #if AMBIPOLAR_DIFFUSION == EXPLICIT
+       Dts->inv_dtp = MAX(Dts->inv_dtp, C_dt[MX2][kk][jj][ii]);
       #endif
       #if THERMAL_CONDUCTION == EXPLICIT
        Dts->inv_dtp = MAX(Dts->inv_dtp, C_dt[ENG][kk][jj][ii]);

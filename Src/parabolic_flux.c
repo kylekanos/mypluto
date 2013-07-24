@@ -174,6 +174,50 @@ void ParabolicFlux (Data_Arr V, const State_1D *state,
      #endif
    }
   #endif 
+/* -------------------------------------------------
+      4. Ambipolar diffusion
+   ------------------------------------------------- */
+
+  #if AMBIPOLAR_DIFFUSION == EXPLICIT
+   {
+     AmbipolarFlux (V, state->par_flx, dcoeff, beg, end, grid);
+     for (i = beg; i <= end; i++){
+
+     /* ------------------------------------------
+         normal component of magnetic field does 
+         not evolve during the current sweep. 
+        ------------------------------------------ */
+
+       state->par_flx[i][BXn] = 0.0;  
+
+    /* ---------------------------------------------
+        add the parabolic part of the EMF, although 
+        this step is done after the hyperbolic part 
+        has already been saved in CT_StoreEMF. 
+        This is useful only for cell-centered MHD.
+       --------------------------------------------- */
+
+       EXPAND(state->flux[i][BX1] += state->par_flx[i][BX1];  ,
+              state->flux[i][BX2] += state->par_flx[i][BX2];  ,
+              state->flux[i][BX3] += state->par_flx[i][BX3]; )
+              
+       #if EOS != ISOTHERMAL && EOS != BAROTROPIC
+       #ERROR Non ISOTHERMAL EOS with ambipolar diffusion are not implememted.
+        par_Eflx[i]        += state->par_flx[i][ENG];
+        state->flux[i][ENG] += state->par_flx[i][ENG];
+       #endif
+     }
+
+   /* ------------------------------------------
+       now save the parabolic part of the EMF
+      ------------------------------------------ */
+
+     #ifdef STAGGERED_MHD
+      CT_StoreAmbipolarEMF (state->par_flx, beg, end, grid);
+     #endif
+   }
+  #endif 
+
    
     
     
