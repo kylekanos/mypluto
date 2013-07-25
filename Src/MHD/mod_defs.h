@@ -258,6 +258,10 @@ Riemann_Solver LF_Solver, Roe_Solver;
  #include "Hall/hall.h"
 #endif
 
+#if AMBIPOLAR_DIFFUSION != NO
+ #include "Ambipolar/ambi.h"
+#endif
+
 #ifdef SHEARINGBOX
  #include "MHD/ShearingBox/shearingbox.h"
 #endif

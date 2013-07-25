@@ -32,7 +32,7 @@
 
 #include "pluto.h"
 
-static EMF emf, emf_res;
+static EMF emf, emf_res, emf_ambi;
 
 #define eps_UCT_CONTACT   1.e-6
 #define EX(k,j,i)  (vz[k][j][i]*By[k][j][i] - vy[k][j][i]*Bz[k][j][i])
@@ -260,6 +260,59 @@ void CT_StoreResistiveEMF (double **res_flx, int beg, int end, Grid *grid)
     }
   }
 }
+/* ********************************************************************* */
+void CT_StoreAmbipolarEMF (double **ambi_flx, int beg, int end, Grid *grid)
+/*!
+ * Store resistive part of EMF.
+ *
+ * \todo some memory could be saved here...
+ *********************************************************************** */
+{
+  int i, j, k;
+ 
+  if (emf_ambi.ezi == NULL){
+    D_EXPAND(                                               ;  ,
+
+      emf_ambi.ezi = ARRAY_3D(NX3_TOT, NX2_TOT, NX1_TOT, double);  
+      emf_ambi.ezj = ARRAY_3D(NX3_TOT, NX2_TOT, NX1_TOT, double);  ,
+
+      emf_ambi.exj = ARRAY_3D(NX3_TOT, NX2_TOT, NX1_TOT, double);
+      emf_ambi.exk = ARRAY_3D(NX3_TOT, NX2_TOT, NX1_TOT, double);
+
+      emf_ambi.eyi = ARRAY_3D(NX3_TOT, NX2_TOT, NX1_TOT, double);
+      emf_ambi.eyk = ARRAY_3D(NX3_TOT, NX2_TOT, NX1_TOT, double);
+    )
+  }
+
+/* ------------------------------------------------------
+     Store emf component or other necessary 1-D data
+   ------------------------------------------------------ */
+
+  if (g_dir == IDIR){
+
+    for (i = beg; i <= end; i++) {
+      D_EXPAND(emf_ambi.ezi[*g_k][*g_j][i] = -ambi_flx[i][BX2];  ,
+                                                               ;  ,
+               emf_ambi.eyi[*g_k][*g_j][i] =  ambi_flx[i][BX3]; ) 
+     }
+
+  }else if (g_dir == JDIR){
+
+    for (j = beg; j <= end; j++) {
+       D_EXPAND(                                                ;  ,
+                emf_ambi.ezj[*g_k][j][*g_i] =  ambi_flx[j][BX1];  ,
+                emf_ambi.exj[*g_k][j][*g_i] = -ambi_flx[j][BX3]; )
+    }
+
+  }else if (g_dir == KDIR){
+
+    for (k = beg; k <= end; k++) {
+       emf_ambi.eyk[k][*g_j][*g_i] = -ambi_flx[k][BX1]; 
+       emf_ambi.exk[k][*g_j][*g_i] =  ambi_flx[k][BX2]; 
+    }
+  }
+}
+
 
 
 
@@ -397,6 +450,31 @@ printf ("%d %d   %d %d\n",0, NX1_TOT-1, 0, NX2_TOT-1);
                              + emf_res.ezj[k][j][i] + emf_res.ezj[k][j][i + 1]);
    }}}
   #endif
+  
+/* ------------------------------------------------------
+    Contributions from ambipolar terms are accounted for
+    using the standard arithmetic average.
+    We'll keep this in absence of something better...
+   ------------------------------------------------------ */
+
+  #if AMBIPOLAR_DIFFUSION == EXPLICIT 
+   #ifdef CTU
+//    if (g_intStage == 2) return (&emf);  
+   #endif 
+   for (k = emf.kbeg; k <= emf.kend; k++){
+   for (j = emf.jbeg; j <= emf.jend; j++){
+   for (i = emf.ibeg; i <= emf.iend; i++){      
+     #if DIMENSIONS == 3
+      emf.ex[k][j][i] += 0.25*( emf_ambi.exk[k][j][i] + emf_ambi.exk[k][j + 1][i] 
+                              + emf_ambi.exj[k][j][i] + emf_ambi.exj[k + 1][j][i]);
+      emf.ey[k][j][i] += 0.25*( emf_ambi.eyi[k][j][i] + emf_ambi.eyi[k + 1][j][i] 
+                              + emf_ambi.eyk[k][j][i] + emf_ambi.eyk[k][j][i + 1]);
+     #endif 
+     emf.ez[k][j][i] += 0.25*( emf_ambi.ezi[k][j][i] + emf_ambi.ezi[k][j + 1][i] 
+                             + emf_ambi.ezj[k][j][i] + emf_ambi.ezj[k][j][i + 1]);
+   }}}
+  #endif
+
   
 
    

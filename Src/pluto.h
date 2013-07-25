@@ -623,7 +623,7 @@ typedef double real;
  #define INTERNAL_BOUNDARY NO
 #endif
 
-#define PARABOLIC_FLUX (RESISTIVE_MHD|THERMAL_CONDUCTION|VISCOSITY)
+#define PARABOLIC_FLUX (RESISTIVE_MHD|THERMAL_CONDUCTION|VISCOSITY|AMBIPOLAR_DIFFUSION)
 
 /* ################################################################# 
 

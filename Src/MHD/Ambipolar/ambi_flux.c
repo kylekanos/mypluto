@@ -1,7 +1,7 @@
 /* ///////////////////////////////////////////////////////////////////// */
 /*!
   \file
-  \brief Compute the resistive MHD flux.
+  \brief Compute the ambipolar MHD flux.
 
   Compute the resistive fluxes for the induction and energy equations.
   In the induction equation, fluxes are computed by explicitly writing

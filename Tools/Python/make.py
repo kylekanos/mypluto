@@ -368,7 +368,11 @@ def problem(work_dir, pluto_path, pluto_dir, additional_files,
     default_MHD.append('NO')
     
     entries_MHD.append('HALL_MHD')
-    options_MHD.append(['NO','EXPLICIT','RIEMANN'])
+    options_MHD.append(['NO','RIEMANN'])
+    default_MHD.append('NO')
+    
+    entries_MHD.append('AMBIPOLAR_DIFFUSION')
+    options_MHD.append(['NO','EXPLICIT'])
     default_MHD.append('NO')
 
     entries_MHD.append('THERMAL_CONDUCTION')
@@ -674,7 +678,10 @@ def problem(work_dir, pluto_path, pluto_dir, additional_files,
     n = entries_MOD.index('HALL_MHD')
     if (default_MOD[n] != 'NO'):
       pluto_path.append('MHD/Hall/')
-      if   (default_MOD[n] == 'EXPLICIT'): 			exp_flag = 1
+      
+    n = entries_MOD.index('AMBIPOLAR_DIFFUSION')
+    if (default_MOD[n] != 'NO'):
+      pluto_path.append('MHD/Ambipolar/')
 
     n = entries_MOD.index('THERMAL_CONDUCTION')
     if (default_MOD[n] != 'NO'):
