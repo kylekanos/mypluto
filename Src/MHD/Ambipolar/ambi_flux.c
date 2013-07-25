@@ -76,7 +76,7 @@ void AmbipolarFlux (Data_Arr V, double **RF, double **dcoeff,
 
   if (J == NULL) J = ARRAY_2D(NMAX_POINT, 3, double);
   
-  GetCurrent (V, J, grid);
+  GetFullCurrent (V, J, grid);
  
   D_EXPAND(x1 = grid[IDIR].x[*g_i];  ,
            x2 = grid[JDIR].x[*g_j];  ,
@@ -178,7 +178,6 @@ void AmbipolarFlux (Data_Arr V, double **RF, double **dcoeff,
       for (nv = 0; nv < NVAR; nv++) {
         vi[nv] = 0.5*(V[nv][k][j][i] + V[nv][k + 1][j][i]);
       }
-      ETA_Func (vi, x1, x2, x3, eta);
       
       AmbiETA_Func (vi, x1, x2, x3, &eta);
 	
