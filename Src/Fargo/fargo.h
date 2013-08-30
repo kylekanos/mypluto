@@ -13,7 +13,7 @@
 */
 /* ///////////////////////////////////////////////////////////////////// */
 
-#define FARGO_ORDER          3    /**<  Set the order of interpolation during 
+#define FARGO_ORDER          2    /**<  Set the order of interpolation during 
      the linear transport step. Either 2 or 3. */
         
 /*! Set how often (in number of steps) the total azimuthal 
@@ -24,7 +24,7 @@
     velocity (YES) or by prescribing the velocity analytically exactly in 
     the user-supplied function FARGO_SetVelocity  */
 #ifndef SHEARINGBOX
- #define FARGO_AVERAGE_VELOCITY  YES 
+ #define FARGO_AVERAGE_VELOCITY  NO 
 #else                             
  #define FARGO_AVERAGE_VELOCITY  NO  
 #endif                            
