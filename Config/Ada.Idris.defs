@@ -1,14 +1,12 @@
 ########################################################################
 #                                                
-#     Configuration file for Linux i686 (parallel)
+#     Configuration file for Linux (parallel)
 #             
 ########################################################################
 
-
-CC        = mpiicc
-CFLAGS    = -c  -xHOST -O3 -ipo -no-prec-div
-#CFLAGS    = -c -ansi -pedantic -O0 -Wall -Wno-unused-variable -Winline 
-LDFLAGS   = -lm  -xHOST -O3 -ipo -no-prec-div
+CC       = mpiicc
+CFLAGS   = -c -O3 -xAVX
+LDFLAGS  = -lm -O3 -xAVX
 
 PARALLEL     = TRUE
 USE_HDF5     = FALSE
