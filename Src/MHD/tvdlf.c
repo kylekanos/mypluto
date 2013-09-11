@@ -88,8 +88,8 @@ void LF_Solver (const State_1D *state, int beg, int end,
   SoundSpeed2 (VR, a2R, NULL, beg, end, FACE_CENTER, grid);
 
 #if HALL_MHD == RIEMANN
-  Flux (UL, VL, a2L, bgf, fL, pL, beg, end, NULL);
-  Flux (UR, VR, a2R, bgf, fR, pR, beg, end, NULL);
+  Flux (UL, VL, a2L, bgf, fL, pL, beg, end, NULL,NULL);
+  Flux (UR, VR, a2R, bgf, fR, pR, beg, end, NULL,NULL);
 #else
   Flux (UL, VL, a2L, bgf, fL, pL, beg, end);
   Flux (UR, VR, a2R, bgf, fR, pR, beg, end);

@@ -88,10 +88,6 @@ int Unsplit (const Data *d, Riemann_Solver *Riemann,
 
   g_intStage = 1;  
   dt = g_dt;
-#if HALL_MHD == RIEMANN
-    /* Compute currents needed by Hall Effect */
-    ComputeCurrent(d->Vc, grid);
-#endif
   Boundary (d, ALL_DIR, grid);
   #ifdef FARGO
    FARGO_SubtractVelocity (d,grid); 
@@ -168,10 +164,20 @@ int Unsplit (const Data *d, Riemann_Solver *Riemann,
          state.bn[in] = d->Vs[g_dir][*k][*j][*i];
         #endif
         #if HALL_MHD == RIEMANN
-        	lHall_Func (state.v[in], grid[IDIR].x[*i], grid[JDIR].x[*j], grid[KDIR].x[*k], &state.lHall[in]);
+        	if(g_dir==0) 
+        		lHall_Func (state.v[in], grid[IDIR].xr[*i], grid[JDIR].x[*j], grid[KDIR].x[*k], &state.lHall[in]);
+        	else if(g_dir==1)
+        		lHall_Func (state.v[in], grid[IDIR].x[*i], grid[JDIR].xr[*j], grid[KDIR].x[*k], &state.lHall[in]);
+        	else if(g_dir==2)
+        		lHall_Func (state.v[in], grid[IDIR].x[*i], grid[JDIR].x[*j], grid[KDIR].xr[*k], &state.lHall[in]);
          	state.dlmin[in] = grid[g_dir].dx[in];
         #endif
       }
+      #if HALL_MHD == RIEMANN
+      /* Compute current needed by Hall */
+      ComputeJState(d, grid, &state, &in, i, j, k, indx.beg-1, indx.end+1);
+      #endif
+      
       CheckNaN (state.v, 0, indx.ntot-1,0);
       States  (&state, indx.beg - 1, indx.end + 1, grid); 
       Riemann (&state, indx.beg - 1, indx.end, Dts->cmax, grid);
@@ -247,10 +253,7 @@ int Unsplit (const Data *d, Riemann_Solver *Riemann,
    }}
 
    g_intStage = 2;
-#if HALL_MHD == RIEMANN
-    /* Compute currents needed by Hall Effect */
-    ComputeCurrent(d->Vc, grid);
-#endif
+   
    #ifdef FARGO
     FARGO_AddVelocity (d,grid); 
    #endif
@@ -293,11 +296,20 @@ int Unsplit (const Data *d, Riemann_Solver *Riemann,
           state.bn[in] = d->Vs[g_dir][*k][*j][*i];
          #endif
          #if HALL_MHD == RIEMANN
-        	lHall_Func (state.v[in], grid[IDIR].x[*i], grid[JDIR].x[*j], grid[KDIR].x[*k], &state.lHall[in]);
+        	if(g_dir==0) 
+        		lHall_Func (state.v[in], grid[IDIR].xr[*i], grid[JDIR].x[*j], grid[KDIR].x[*k], &state.lHall[in]);
+        	else if(g_dir==1)
+        		lHall_Func (state.v[in], grid[IDIR].x[*i], grid[JDIR].xr[*j], grid[KDIR].x[*k], &state.lHall[in]);
+        	else if(g_dir==2)
+        		lHall_Func (state.v[in], grid[IDIR].x[*i], grid[JDIR].x[*j], grid[KDIR].xr[*k], &state.lHall[in]);
          	state.dlmin[in] = grid[g_dir].dx[in];
         #endif
        }
-
+	   #if HALL_MHD == RIEMANN
+       /* Compute current needed by Hall */
+		ComputeJState(d, grid, &state, &in, i, j, k, indx.beg-1, indx.end+1);
+       #endif
+      
        States  (&state, indx.beg - 1, indx.end + 1, grid);     
        Riemann (&state, indx.beg - 1, indx.end, Dts->cmax, grid);
        #ifdef STAGGERED_MHD
@@ -356,10 +368,6 @@ int Unsplit (const Data *d, Riemann_Solver *Riemann,
    }}
 
    g_intStage = 3;
-   #if HALL_MHD == RIEMANN
-    /* Compute currents needed by Hall Effect */
-    ComputeCurrent(d->Vc, grid);
-   #endif
    #ifdef FARGO
     FARGO_AddVelocity (d,grid); 
    #endif
@@ -394,12 +402,21 @@ int Unsplit (const Data *d, Riemann_Solver *Riemann,
          #ifdef STAGGERED_MHD
           state.bn[in] = d->Vs[g_dir][*k][*j][*i];
          #endif
-         #if HALL_MHD == RIEMANN
-        	lHall_Func (state.v[in], grid[IDIR].x[*i], grid[JDIR].x[*j], grid[KDIR].x[*k], &state.lHall[in]);
+		 #if HALL_MHD == RIEMANN
+        	if(g_dir==0) 
+        		lHall_Func (state.v[in], grid[IDIR].xr[*i], grid[JDIR].x[*j], grid[KDIR].x[*k], &state.lHall[in]);
+        	else if(g_dir==1)
+        		lHall_Func (state.v[in], grid[IDIR].x[*i], grid[JDIR].xr[*j], grid[KDIR].x[*k], &state.lHall[in]);
+        	else if(g_dir==2)
+        		lHall_Func (state.v[in], grid[IDIR].x[*i], grid[JDIR].x[*j], grid[KDIR].xr[*k], &state.lHall[in]);
          	state.dlmin[in] = grid[g_dir].dx[in];
         #endif
        }
-
+	   #if HALL_MHD == RIEMANN
+       /* Compute current needed by Hall */
+       ComputeJState(d, grid, &state, &in, i, j, k, indx.beg-1, indx.end+1);
+       #endif
+      
        States  (&state, indx.beg - 1, indx.end + 1, grid);
        Riemann (&state, indx.beg - 1, indx.end, Dts->cmax, grid);
        #ifdef STAGGERED_MHD
@@ -486,10 +503,6 @@ int Unsplit (const Data *d, Riemann_Solver *Riemann,
   #ifdef FARGO
    FARGO_AddVelocity (d,grid); 
   #endif
-#if HALL_MHD == RIEMANN
-    /* Compute currents needed by Hall Effect */
-    ComputeCurrent(d->Vc, grid);
-#endif
   return(0); /* -- step has been achieved, return success -- */
 }
 

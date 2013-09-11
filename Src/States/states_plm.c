@@ -218,14 +218,6 @@ void States (const State_1D *state, int beg, int end, Grid *grid)
         d2 = dp*dm;
         dv[nv] = (d2 > 0.0 ? 2.0*d2/(dp + dm):0.0);
       }
-      /* Limiter for currents when using Hall-MHD */
-      #if HALL_MHD == RIEMANN
-      for (nv = JX1; nv < JX1+COMPONENTS; nv++){
-          dp = dvF[i][nv]; dm = dvF[i-1][nv];
-          d2 = dp*dm;
-          dv[nv] = (d2 > 0.0 ? 2.0*d2/(dp + dm):0.0);
-      }
-      #endif
       #ifdef GLM_MHD /* -- mc limiter -- */
        nv = PSI_GLM;
        dp = dvF[i][nv]; dm = dvF[i-1][nv];

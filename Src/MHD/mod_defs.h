@@ -50,10 +50,6 @@ enum {
   #if MHD_FORMULATION == DIV_CLEANING
    PSI_GLM,
   #endif
-  #if HALL_MHD == RIEMANN
-    JX1, JX2, JX3,
-  #endif
-    
 
  #endif
 
@@ -71,6 +67,14 @@ enum {
 
 };
 
+#if HALL_MHD == RIEMANN
+
+enum {
+    JX1, JX2, JX3
+};
+
+#endif
+
 /* **************************************
      add the PSI_GLM label if necessary 
    ************************************** */
@@ -85,7 +89,7 @@ enum {
 #endif
 */
 
-#define NFLX (2*COMPONENTS + (EOS == IDEAL ? 2:1) + (MHD_FORMULATION == DIV_CLEANING) + 3*(HALL_MHD==RIEMANN))
+#define NFLX (2*COMPONENTS + (EOS == IDEAL ? 2:1) + (MHD_FORMULATION == DIV_CLEANING))
 
 /* ********************************************************************* */
 /*! Label the different waves in increasing order 
@@ -212,7 +216,7 @@ void Entropy  (double **, double *, int, int );
 #if HALL_MHD == RIEMANN
 // Add two extra arrays to handle ionization fraction and grid spacing
 void Flux      (double **, double **, double *, double **, double **,
-                double *, int, int, double *);
+                double *, int, int, double **, double *);
 void HLL_Speed (double **, double **, double *, double *, double **, 
                 double *, double *, int, int, double *, double *);
 void MaxSignalSpeed (double **, double *, double *, double *, double **, int, int, double *, double *);

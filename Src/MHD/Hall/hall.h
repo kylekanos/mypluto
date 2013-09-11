@@ -13,6 +13,7 @@
 /* ///////////////////////////////////////////////////////////////////// */
 
 //void HallFlux (Data_Arr, double **, double **, int, int, Grid *);
+void ComputeJState(const Data *d, const Grid *grid, State_1D *state, int *in, int *i, int *j, int *k, int beg, int end);
 void ComputeCurrent(Data_Arr, Grid *);
 //void GetFullCurrent (Data_Arr, real **, Grid *);
 

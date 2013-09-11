@@ -125,8 +125,8 @@ state->uR = UR;
   SoundSpeed2 (VR, a2R, NULL, beg, end, FACE_CENTER, grid);
 #if HALL_MHD == RIEMANN
 /* not yet implemented HALL flux in HALLD */
-  Flux (UL, VL, a2L, NULL, fL, ptL, beg, end,NULL);
-  Flux (UR, VR, a2R, NULL, fR, ptR, beg, end,NULL);
+  Flux (UL, VL, a2L, NULL, fL, ptL, beg, end,NULL,NULL);
+  Flux (UR, VR, a2R, NULL, fR, ptR, beg, end,NULL,NULL);
 #else
   Flux (UL, VL, a2L, NULL, fL, ptL, beg, end);
   Flux (UR, VR, a2R, NULL, fR, ptR, beg, end);
@@ -514,8 +514,8 @@ void HLLD_Solver (const State_1D *state, int beg, int end,
   SoundSpeed2 (VR, a2R, NULL, beg, end, FACE_CENTER, grid);
 
 #if HALL_MHD == RIEMANN
-  Flux (UL, VL, a2L, NULL, fL, ptL, beg, end,NULL);
-  Flux (UR, VR, a2R, NULL, fR, ptR, beg, end,NULL);
+  Flux (UL, VL, a2L, NULL, fL, ptL, beg, end,NULL,NULL);
+  Flux (UR, VR, a2R, NULL, fR, ptR, beg, end,NULL,NULL);
 #else
   Flux (UL, VL, a2L, NULL, fL, ptL, beg, end);
   Flux (UR, VR, a2R, NULL, fR, ptR, beg, end);

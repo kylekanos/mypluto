@@ -739,7 +739,9 @@ typedef struct STATE_1D{
 #if HALL_MHD == RIEMANN
   double *lHall;
   double *dlmin;
+  double **j;		/* Current used to compute Hall-MHD */
 #endif
+  
   double **pnt_flx;
   double **dff_flx;
 

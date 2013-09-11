@@ -22,7 +22,7 @@
 /* ********************************************************************* */
 #if HALL_MHD == RIEMANN
 void Flux (double **ucons, double **wprim, double *a2, double **bck, 
-           double **fx, double *p, int beg, int end, double *lHall)
+           double **fx, double *p, int beg, int end, double **jarray, double *lHall)
 #else
 void Flux (double **ucons, double **wprim, double *a2, double **bck, 
            double **fx, double *p, int beg, int end)
@@ -45,10 +45,18 @@ void Flux (double **ucons, double **wprim, double *a2, double **bck,
   double bt1, bt2, bt3;
   double *w, *u;
 
+#if HALL_MHD == RIEMANN
+  double *j;
+#endif
+
   for (i = beg; i <= end; i++) {
+
 
     w = wprim[i];
     u = ucons[i];
+#if HALL_MHD == RIEMANN
+	j = jarray[i];
+#endif
     
     ptot  = 0.5*(EXPAND(w[BX1]*w[BX1] , + w[BX2]*w[BX2], + w[BX3]*w[BX3]));
 
@@ -96,10 +104,9 @@ void Flux (double **ucons, double **wprim, double *a2, double **bck,
       
 #if HALL_MHD == RIEMANN
       EXPAND(fx[i][BXn] -= 0.0;                         ,
-             fx[i][BXt] -= lHall[i]*(w[JXn]*w[BXt] - w[BXn]*w[JXt]);   ,
-             fx[i][BXb] -= lHall[i]*(w[JXn]*w[BXb] - w[BXn]*w[JXb]); )
+             fx[i][BXt] -= lHall[i]*(j[JXn]*w[BXt] - w[BXn]*j[JXt]);   ,
+             fx[i][BXb] -= lHall[i]*(j[JXn]*w[BXb] - w[BXn]*j[JXb]); ) 
 #endif
-      
       
      #if EOS == IDEAL
       fx[i][ENG] = (u[ENG] + ptot)*w[VXn] - w[BXn]*vB;
@@ -113,4 +120,5 @@ void Flux (double **ucons, double **wprim, double *a2, double **bck,
      fx[i][PSI_GLM] = glm_ch*glm_ch*w[BXn];
     #endif
   }
+
 }

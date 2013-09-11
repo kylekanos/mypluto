@@ -40,6 +40,7 @@ void HLL_Solver (const State_1D *state, int beg, int end,
   static double *pL, *pR, *a2L, *a2R;
 #if HALL_MHD == RIEMANN
   static double *dlmin, *lHall;
+  static double **j;
 #endif
   double **bgf;
     
@@ -85,6 +86,7 @@ void HLL_Solver (const State_1D *state, int beg, int end,
 #if HALL_MHD == RIEMANN
   lHall = state->lHall;
   dlmin = state->dlmin;
+  j = state->j;
 #endif
 
 /* ----------------------------------------------------
@@ -95,8 +97,8 @@ void HLL_Solver (const State_1D *state, int beg, int end,
   SoundSpeed2 (VR, a2R, NULL, beg, end, FACE_CENTER, grid);
 
 #if HALL_MHD == RIEMANN
-  Flux (UL, VL, a2L, bgf, fL, pL, beg, end, lHall);
-  Flux (UR, VR, a2R, bgf, fR, pR, beg, end, lHall);
+  Flux (UL, VL, a2L, bgf, fL, pL, beg, end, j, lHall);
+  Flux (UR, VR, a2R, bgf, fR, pR, beg, end, j, lHall);
 #else
   Flux (UL, VL, a2L, bgf, fL, pL, beg, end);
   Flux (UR, VR, a2R, bgf, fR, pR, beg, end);
@@ -146,9 +148,11 @@ void HLL_Solver (const State_1D *state, int beg, int end,
         state->flux[i][nv] = SL[i]*SR[i]*(uR[nv] - uL[nv]) +
                              SR[i]*fL[i][nv] - SL[i]*fR[i][nv];
         state->flux[i][nv] *= scrh;
+        
       }
       state->press[i] = (SR[i]*pL[i] - SL[i]*pR[i])*scrh;
     }
+    
 
   }
 
