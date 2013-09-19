@@ -152,6 +152,9 @@ int Unsplit (const Data *d, Riemann_Solver *Riemann,
   
     SetIndexes (&indx, grid);  /* -- set normal and transverse indices -- */
     ResetState (d, &state, grid);
+#if HALL_MHD == RIEMANN
+	 ComputeJ(d, grid, g_time);			/* Compute currents needed by Hall */
+#endif
     TRANSVERSE_LOOP(indx,in,i,j,k){  
 
       inv_dl = GetInverse_dl(grid);
@@ -175,7 +178,7 @@ int Unsplit (const Data *d, Riemann_Solver *Riemann,
       }
       #if HALL_MHD == RIEMANN
       /* Compute current needed by Hall */
-      ComputeJState(d, grid, &state, &in, i, j, k, indx.beg-1, indx.end+1);
+      StoreJState(&state, &in, i, j, k, indx.beg-1, indx.end+1);
       #endif
       
       CheckNaN (state.v, 0, indx.ntot-1,0);
@@ -288,6 +291,9 @@ int Unsplit (const Data *d, Riemann_Solver *Riemann,
 
      SetIndexes (&indx, grid);    /* -- set normal and transverse indices -- */
      ResetState (d, &state, grid);
+#if HALL_MHD == RIEMANN
+	 ComputeJ(d, grid, g_time+g_dt);			/* Compute currents needed by Hall */
+#endif
      TRANSVERSE_LOOP(indx,in,i,j,k){  
 
        for (in = 0; in < indx.ntot; in++) {
@@ -306,8 +312,8 @@ int Unsplit (const Data *d, Riemann_Solver *Riemann,
         #endif
        }
 	   #if HALL_MHD == RIEMANN
-       /* Compute current needed by Hall */
-		ComputeJState(d, grid, &state, &in, i, j, k, indx.beg-1, indx.end+1);
+       /* Store current needed by Hall */
+		StoreJState(&state, &in, i, j, k, indx.beg-1, indx.end+1);
        #endif
       
        States  (&state, indx.beg - 1, indx.end + 1, grid);     
@@ -395,6 +401,9 @@ int Unsplit (const Data *d, Riemann_Solver *Riemann,
 
      SetIndexes (&indx, grid);  /* -- set normal and transverse indices -- */
      ResetState (d, &state, grid);
+#if HALL_MHD == RIEMANN
+	 ComputeJ(d, grid, g_time+g_dt);			/* Compute currents needed by Hall */
+#endif
      TRANSVERSE_LOOP(indx,in,i,j,k){  
 
        for (in = 0; in < indx.ntot; in++) {
@@ -414,7 +423,7 @@ int Unsplit (const Data *d, Riemann_Solver *Riemann,
        }
 	   #if HALL_MHD == RIEMANN
        /* Compute current needed by Hall */
-       ComputeJState(d, grid, &state, &in, i, j, k, indx.beg-1, indx.end+1);
+       StoreJState(&state, &in, i, j, k, indx.beg-1, indx.end+1);
        #endif
       
        States  (&state, indx.beg - 1, indx.end + 1, grid);

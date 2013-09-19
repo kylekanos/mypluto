@@ -49,8 +49,8 @@
                                        boundaries. */
 #else
  #define SB_SYMMETRIZE_HYDRO  NO  
- #define SB_SYMMETRIZE_EY    (NO  && (DIMENSIONS == 3)) 
- #define SB_SYMMETRIZE_EZ     NO 
+ #define SB_SYMMETRIZE_EY    (YES  && (DIMENSIONS == 3)) 
+ #define SB_SYMMETRIZE_EZ     YES 
  #define SB_FORCE_EMF_PERIODS NO 
 #endif
 
