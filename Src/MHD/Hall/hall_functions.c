@@ -6,6 +6,179 @@ static double ***HallJz;
 
 #ifdef SHEARINGBOX
 /* ********************************************************************* */
+void CurrentSB_Boundary (double ***Jin, int side, Grid *grid) 
+/*! 
+ * Main wrapper function used to assign shearing-box boundary conditions
+ * on flow variables.
+ *
+ * \param d    pointer to the PLUTO Data structure
+ * \param side the side of the computational domain (X1_BEG or X1_END) 
+ * \param grid pointer to an array of Grid structures
+ *
+ * \return This function has no return value.
+ *
+ * \todo Check if sb_Ly and sb_vy need to be global.
+ *********************************************************************** */
+{
+  int    i, j, k, nv;
+  double t, Lx;
+  RBox   box;
+
+
+/* -------------------------------------------------
+                  X1 Beg Boundary
+   ------------------------------------------------- */
+
+  if (side == X1_BEG){
+      box.ib =  0; box.ie = IBEG-1;
+      box.jb = 0;  box.je = NX2_TOT-1;
+      box.kb =  0; box.ke = NX3_TOT-1;
+      SB_SetBoundaryVar(Jin, &box, side, t, grid);
+  } /* -- END side X1_BEG -- */
+
+/* -------------------------------------------------
+                  X1 End Boundary
+   ------------------------------------------------- */
+
+  if (side == X1_END){
+
+     box.ib = IEND+1; box.ie = NX1_TOT-1;
+     box.jb =     0; box.je = NX2_TOT-1;
+     box.kb =      0; box.ke = NX3_TOT-1;
+     SB_SetBoundaryVar(Jin, &box, side, t, grid);
+   
+  }
+}
+
+
+/* ********************************************************************* */
+void CurrentBoundary (double ***Jin, Grid *grid)
+/*!
+ * Set boundary conditions on one or more sides of the computational
+ * domain.
+ *
+ * \param [in,out] d  pointer to PLUTO Data structure containing the 
+ *                    solution array (including centered and staggered
+ *                    fields)
+ * \param [in]   idim specifies on which side(s) of the computational
+ *               domain boundary conditions must be set. Possible values
+ *               are  
+ *        - idim = IDIR   first dimension (x1)
+ *        - idim = JDIR   second dimenson (x2)
+ *        - idim = KDIR   third dimension (x3)
+ *        - idim = ALL_DIR all dimensions
+ * \param [in]  grid   pointer to an array of grid structures.
+ ******************************************************************* */
+{
+  int  is, nv,idim;
+  int  side[6] = {X1_BEG, X1_END, X2_BEG, X2_END, X3_BEG, X3_END};
+  int  type[6], sbeg, send, vsign[NVAR];
+  int  par_dim[3] = {0, 0, 0};
+  static int first_call = 1;
+  double ***q;
+  static RBox center[8], x1face[8], x2face[8], x3face[8];
+
+/* We only do periodic BCs in the x direction */
+
+  idim = IDIR;
+/* -----------------------------------------------------
+     Set the boundary boxes on the six domain sides
+   ----------------------------------------------------- */
+
+  #ifndef CH_SPACEDIM
+  if (first_call){
+    SetRBox(center, x1face, x2face, x3face);
+    first_call = 0;
+  }
+  #else /* -- with dynamic grids we need to re-define the RBox at each time -- */
+   SetRBox(center, x1face, x2face, x3face);
+  #endif
+
+/* ---------------------------------------------------
+    Check the number of processors in each direction
+   --------------------------------------------------- */
+
+  D_EXPAND(par_dim[0] = grid[IDIR].nproc > 1;  ,
+           par_dim[1] = grid[JDIR].nproc > 1;  ,
+           par_dim[2] = grid[KDIR].nproc > 1;)
+
+  
+/* -------------------------------------
+     Exchange data between processors 
+   ------------------------------------- */
+   
+  #ifdef PARALLEL
+   MPI_Barrier (MPI_COMM_WORLD);
+/*   NOT NEEDED
+   if(g_dir==IDIR)   
+   	AL_Exchange_dim ((char *)(Jin[0][0] - 1), par_dim, SZ_stagx); */
+   if(g_dir==JDIR)
+    AL_Exchange_dim ((char *)Jin[0][0]     , par_dim, SZ);
+   if(g_dir==KDIR)
+   	AL_Exchange_dim ((char *)Jin[0][0]     , par_dim, SZ);
+   	
+   MPI_Barrier (MPI_COMM_WORLD);
+  #endif
+
+/* ----------------------------------------------------------------
+     When idim == ALL_DIR boundaries are imposed on ALL sides:
+     a loop from sbeg = 0 to send = 2*DIMENSIONS - 1 is performed. 
+     When idim = n, boundaries are imposed at the beginning and 
+     the end of the i-th direction.
+   ---------------------------------------------------------------- */ 
+
+  if (idim == ALL_DIR) {
+    sbeg = 0;
+    send = 2*DIMENSIONS - 1;
+  } else {
+    sbeg = 2*idim;
+    send = 2*idim + 1;
+  }
+
+/* --------------------------------------------------------
+        Main loop on computational domain sides
+   -------------------------------------------------------- */
+
+  type[0] = grid[IDIR].lbound; type[1] = grid[IDIR].rbound;
+  type[2] = grid[JDIR].lbound; type[3] = grid[JDIR].rbound;
+  type[4] = grid[KDIR].lbound; type[5] = grid[KDIR].rbound;
+
+  for (is = sbeg; is <= send; is++){
+
+
+    if (type[is] == SHEARING) {  /* -- shearingbox boundary -- */
+
+  /* ---------------------------------------------------------
+      SHEARING-BOX boundary condition is implemented as
+
+      1) apply periodic boundary conditions for all variables
+        (except staggered BX)
+      2) Perform spatial shift in the y-direction
+     --------------------------------------------------------- */
+
+       if (side[is] != X1_BEG && side[is] != X1_END){
+         print1 ("! BOUNDARY: shearingbox can only be assigned at an X1 boundary\n");
+         QUIT_PLUTO(1);
+       }
+       if (grid[IDIR].nproc == 1){
+/*    NOT NEEDED
+       	 if(g_dir==IDIR) 
+       	 	PeriodicBound (Jin, x1face+is, side[is]);   */
+       	 if(g_dir==JDIR) 
+       	 	PeriodicBound (Jin, x2face+is, side[is]);
+       	 if(g_dir==KDIR) 
+       	 	PeriodicBound (Jin, x3face+is, side[is]);
+       }
+       CurrentSB_Boundary (Jin, side[is], grid);
+
+    }
+  }
+}
+
+
+
+
+/* ********************************************************************* */
 void SB_CorrectCurrent (double t, Grid *grid)
 /*!
  * Interpolate x and y J and properly correct leftmost
@@ -236,6 +409,11 @@ void ComputeJ(const Data *d, Grid *grid, double t) {
 				}
 			}
 		}
+#ifdef SHEARINGBOX
+    CurrentBoundary(HallJx, grid);
+    CurrentBoundary(HallJy, grid);
+    CurrentBoundary(HallJz, grid);
+#endif
 	}
 	
 	else if (g_dir == KDIR) {
@@ -261,7 +439,14 @@ void ComputeJ(const Data *d, Grid *grid, double t) {
 				}
 			}
 		}
+#ifdef SHEARINGBOX
+    CurrentBoundary(HallJx, grid);
+    CurrentBoundary(HallJy, grid);
+    CurrentBoundary(HallJz, grid);
+#endif
 	}
+
+	
 	
 }
 
@@ -284,12 +469,12 @@ void ComputeJ(const Data *d, Grid *grid, double t) {
 void StoreJState(State_1D *state, int *in, int *i, int *j, int *k, int beg, int end) {
 	/* Compute the current state->j associated to current sweep as a face-centered quantity */
      
+    // Currents are automatically computed on the right side.
     for(*in=beg ; *in <= end ; (*in)++) {		
 		state->j[*in][JX1] = HallJx[*k][*j][*i];
 		state->j[*in][JX2] = HallJy[*k][*j][*i];
 		state->j[*in][JX3] = HallJz[*k][*j][*i];
-	} 
-	
+	}	
 }
 
 
