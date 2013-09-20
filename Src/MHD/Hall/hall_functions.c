@@ -21,10 +21,13 @@ void CurrentSB_Boundary (double ***Jin, int side, Grid *grid)
  *********************************************************************** */
 {
   int    i, j, k, nv;
-  double t, Lx;
+  double t;
   RBox   box;
 
-
+  t  = g_time;
+  #if TIME_STEPPING == RK2
+   if (g_intStage == 2) t = g_time + g_dt;
+  #endif
 /* -------------------------------------------------
                   X1 Beg Boundary
    ------------------------------------------------- */
