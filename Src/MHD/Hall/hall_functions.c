@@ -5,6 +5,149 @@ static double ***HallJy;
 static double ***HallJz;
 
 #ifdef SHEARINGBOX
+
+/* ********************************************************************* */
+void SetCurrentRBox(RBox *center, RBox *x1face, RBox *x2face, RBox *x3face)
+/* 
+ *Specially adapted for current BC which are face centered but which do not
+ *Fall into the usual face centered array layout.
+ *
+ *********************************************************************** */
+{
+  int s;
+
+/* ---------------------------------------------------
+            set X1_BEG grid index ranges
+   --------------------------------------------------- */
+
+  s = X1_BEG; s -= X1_BEG;
+
+  center[s].vpos = CENTER;
+
+  center[s].ib = IBEG-1; center[s].ie =         0;
+  center[s].jb =      0; center[s].je = NX2_TOT-1;
+  center[s].kb =      0; center[s].ke = NX3_TOT-1;
+
+  x1face[s] = x2face[s] = x3face[s] = center[s];
+
+   x1face[s].vpos = X1FACE;
+   x2face[s].vpos = X2FACE;
+   x3face[s].vpos = X3FACE;
+
+   x1face[s].ib--; 
+
+/* ---------------------------------------------------
+            set X1_END grid index ranges
+   --------------------------------------------------- */
+  
+  s = X1_END; s -= X1_BEG;
+
+  center[s].vpos = CENTER;
+
+  center[s].ib = IEND+1; center[s].ie = NX1_TOT-1;
+  center[s].jb =      0; center[s].je = NX2_TOT-1;
+  center[s].kb =      0; center[s].ke = NX3_TOT-1;
+
+  x1face[s] = x2face[s] = x3face[s] = center[s];
+
+  #ifndef CH_SPACEDIM /* -- useless for AMR -- */
+   x1face[s].vpos = X1FACE;
+   x2face[s].vpos = X2FACE;
+   x3face[s].vpos = X3FACE;
+
+  #endif
+
+/* ---------------------------------------------------
+            set X2_BEG grid index ranges
+   --------------------------------------------------- */
+
+  s = X2_BEG; s -= X1_BEG;
+
+  center[s].vpos = CENTER;
+
+  center[s].ib =      0; center[s].ie = NX1_TOT-1;
+  center[s].jb = JBEG-1; center[s].je =         0;
+  center[s].kb =      0; center[s].ke = NX3_TOT-1;
+
+  x1face[s] = x2face[s] = x3face[s] = center[s];
+
+  #ifndef CH_SPACEDIM /* -- useless for AMR -- */
+   x1face[s].vpos = X1FACE;
+   x2face[s].vpos = X2FACE;
+   x3face[s].vpos = X3FACE;
+
+
+   x2face[s].jb--;
+   
+  #endif
+
+/* ---------------------------------------------------
+            set X2_END grid index ranges
+   --------------------------------------------------- */
+  
+  s = X2_END; s -= X1_BEG;
+
+  center[s].vpos = CENTER;
+
+  center[s].ib =      0; center[s].ie = NX1_TOT-1;
+  center[s].jb = JEND+1; center[s].je = NX2_TOT-1;
+  center[s].kb =      0; center[s].ke = NX3_TOT-1;
+
+  x1face[s] = x2face[s] = x3face[s] = center[s];
+
+  #ifndef CH_SPACEDIM /* -- useless for AMR -- */
+   x1face[s].vpos = X1FACE;
+   x2face[s].vpos = X2FACE;
+   x3face[s].vpos = X3FACE;
+
+  #endif
+
+/* ---------------------------------------------------
+            set X3_BEG grid index ranges
+   --------------------------------------------------- */
+
+  s = X3_BEG; s -= X1_BEG;
+
+  center[s].vpos = CENTER;
+
+  center[s].ib =      0; center[s].ie = NX1_TOT-1;
+  center[s].jb =      0; center[s].je = NX2_TOT-1;
+  center[s].kb = KBEG-1; center[s].ke =         0;
+
+  x1face[s] = x2face[s] = x3face[s] = center[s];
+
+  #ifndef CH_SPACEDIM /* -- useless for AMR -- */
+   x1face[s].vpos = X1FACE;
+   x2face[s].vpos = X2FACE;
+   x3face[s].vpos = X3FACE;
+
+
+   x3face[s].kb--;
+  #endif
+
+/* ---------------------------------------------------
+            set X3_END grid index ranges
+   --------------------------------------------------- */
+  
+  s = X3_END; s -= X1_BEG;
+
+  center[s].vpos = CENTER;
+
+  center[s].ib =      0; center[s].ie = NX1_TOT-1; center[s].di = 1;
+  center[s].jb =      0; center[s].je = NX2_TOT-1; center[s].dj = 1;
+  center[s].kb = KEND+1; center[s].ke = NX3_TOT-1; center[s].dk = 1;
+
+  x1face[s] = x2face[s] = x3face[s] = center[s];
+
+  #ifndef CH_SPACEDIM /* -- useless for AMR -- */
+   x1face[s].vpos = X1FACE;
+   x2face[s].vpos = X2FACE;
+   x3face[s].vpos = X3FACE;
+
+  #endif
+}
+
+
 /* ********************************************************************* */
 void CurrentSB_Boundary (double ***Jin, int side, Grid *grid) 
 /*! 
@@ -90,11 +233,11 @@ void CurrentBoundary (double ***Jin, Grid *grid)
 
   #ifndef CH_SPACEDIM
   if (first_call){
-    SetRBox(center, x1face, x2face, x3face);
+    SetCurrentRBox(center, x1face, x2face, x3face);
     first_call = 0;
   }
   #else /* -- with dynamic grids we need to re-define the RBox at each time -- */
-   SetRBox(center, x1face, x2face, x3face);
+   SetCurrentRBox(center, x1face, x2face, x3face);
   #endif
 
 /* ---------------------------------------------------
@@ -109,7 +252,8 @@ void CurrentBoundary (double ***Jin, Grid *grid)
 /* -------------------------------------
      Exchange data between processors 
    ------------------------------------- */
-   
+      
+      
   #ifdef PARALLEL
    MPI_Barrier (MPI_COMM_WORLD);
 /*   NOT NEEDED
@@ -413,6 +557,7 @@ void ComputeJ(const Data *d, Grid *grid, double t) {
 			}
 		}
 #ifdef SHEARINGBOX
+
     CurrentBoundary(HallJx, grid);
     CurrentBoundary(HallJy, grid);
     CurrentBoundary(HallJz, grid);
@@ -443,9 +588,10 @@ void ComputeJ(const Data *d, Grid *grid, double t) {
 			}
 		}
 #ifdef SHEARINGBOX
+
     CurrentBoundary(HallJx, grid);
     CurrentBoundary(HallJy, grid);
-    CurrentBoundary(HallJz, grid);
+    CurrentBoundary(HallJz, grid); 
 #endif
 	}
 
