@@ -7,7 +7,7 @@ static double ***HallJz;
 #ifdef SHEARINGBOX
 
 /* ********************************************************************* */
-void SetCurrentRBox(RBox *center, RBox *x1face, RBox *x2face, RBox *x3face)
+void Hall_SetCurrentRBox(RBox *center, RBox *x1face, RBox *x2face, RBox *x3face)
 /* 
  *Specially adapted for current BC which are face centered but which do not
  *Fall into the usual face centered array layout.
@@ -77,7 +77,7 @@ void SetCurrentRBox(RBox *center, RBox *x1face, RBox *x2face, RBox *x3face)
    x3face[s].vpos = X3FACE;
 
 
-   //x2face[s].jb--;
+   x2face[s].jb--;
    
   #endif
 
@@ -122,7 +122,7 @@ void SetCurrentRBox(RBox *center, RBox *x1face, RBox *x2face, RBox *x3face)
    x3face[s].vpos = X3FACE;
 
 
-   //x3face[s].kb--;
+   x3face[s].kb--;
   #endif
 
 /* ---------------------------------------------------
@@ -149,7 +149,7 @@ void SetCurrentRBox(RBox *center, RBox *x1face, RBox *x2face, RBox *x3face)
 
 
 /* ********************************************************************* */
-void CurrentSB_Boundary (double ***Jin, int side, Grid *grid) 
+void Hall_SB_Boundary (double ***Jin, int side, Grid *grid) 
 /*! 
  * Main wrapper function used to assign shearing-box boundary conditions
  * on flow variables.
@@ -198,7 +198,7 @@ void CurrentSB_Boundary (double ***Jin, int side, Grid *grid)
 
 
 /* ********************************************************************* */
-void CurrentBoundary (double ***Jin, Grid *grid)
+void Hall_JBoundary (double ***Jin, Grid *grid)
 /*!
  * Set boundary conditions on one or more sides of the computational
  * domain.
@@ -233,11 +233,11 @@ void CurrentBoundary (double ***Jin, Grid *grid)
 
   #ifndef CH_SPACEDIM
   if (first_call){
-    SetCurrentRBox(center, x1face, x2face, x3face);
+    Hall_SetCurrentRBox(center, x1face, x2face, x3face);
     first_call = 0;
   }
   #else /* -- with dynamic grids we need to re-define the RBox at each time -- */
-   SetCurrentRBox(center, x1face, x2face, x3face);
+   Hall_SetCurrentRBox(center, x1face, x2face, x3face);
   #endif
 
 /* ---------------------------------------------------
@@ -317,7 +317,7 @@ void CurrentBoundary (double ***Jin, Grid *grid)
        	 if(g_dir==KDIR) 
        	 	PeriodicBound (Jin, x3face+is, side[is]);
        }
-       CurrentSB_Boundary (Jin, side[is], grid);
+       Hall_SB_Boundary (Jin, side[is], grid);
 
     }
   }
@@ -327,10 +327,10 @@ void CurrentBoundary (double ***Jin, Grid *grid)
 
 
 /* ********************************************************************* */
-void SB_CorrectCurrent (double t, Grid *grid)
+void Hall_FixJ (double ***Jin, double t, Grid *grid)
 /*!
- * Interpolate x and y J and properly correct leftmost
- * and rightmost cells to ensure conservation.
+ * Interpolate J and properly correct leftmost
+ * and rightmost cells to ensure Shearing sheet BCs are satisfied.
  *
  * \param [in,out] U data array containing cell-centered quantities
  * \param [in] t  the time step at which fluxes have  to be computed
@@ -340,17 +340,11 @@ void SB_CorrectCurrent (double t, Grid *grid)
 {
   int    i, j, k, nv;
   double dtdx;
-  static double ***JxL, ***JxR;
-  static double ***JyL, ***JyR;
-  static double ***JzL, ***JzR;
+  static double ***JL, ***JR;
 
-  if (JxL == NULL){
-    JxL    = ARRAY_3D(NX3_TOT, NX2_TOT, 1, double);
-    JxR    = ARRAY_3D(NX3_TOT, NX2_TOT, 1, double);
-    JyL    = ARRAY_3D(NX3_TOT, NX2_TOT, 1, double);
-    JyR    = ARRAY_3D(NX3_TOT, NX2_TOT, 1, double);
-    JzL    = ARRAY_3D(NX3_TOT, NX2_TOT, 1, double);
-    JzR    = ARRAY_3D(NX3_TOT, NX2_TOT, 1, double);
+  if (JL == NULL){
+    JL    = ARRAY_3D(NX3_TOT, NX2_TOT, 1, double);
+    JR    = ARRAY_3D(NX3_TOT, NX2_TOT, 1, double);
   }
 
   if (grid[IDIR].lbound != 0){
@@ -358,9 +352,7 @@ void SB_CorrectCurrent (double t, Grid *grid)
   /* -- Store J components on the left -- */
 
     KTOT_LOOP(k) JTOT_LOOP(j){                                    
-               JxL[k][j][0] = HallJx[k][j][IBEG - 1];
-               JyL[k][j][0] = HallJy[k][j][IBEG - 1];
-               JzL[k][j][0] = HallJz[k][j][IBEG - 1];
+               JL[k][j][0] = Jin[k][j][IBEG - 1];
     }
   }
 
@@ -369,19 +361,13 @@ void SB_CorrectCurrent (double t, Grid *grid)
   /* -- Store J components on the right -- */
 
     KTOT_LOOP(k) JTOT_LOOP(j){
-               JxR[k][j][0] = HallJx[k][j][IEND];
-               JyR[k][j][0] = HallJy[k][j][IEND];
-               JzR[k][j][0] = HallJz[k][j][IEND];
+               JR[k][j][0] = Jin[k][j][IEND];
     }
 
   }
 
-
-
   #ifdef PARALLEL
-   		ExchangeX (JxL[0][0], JxR[0][0], NX3_TOT*NX2_TOT, grid);
-   		ExchangeX (JyL[0][0], JyR[0][0], NX3_TOT*NX2_TOT, grid); 
-   		ExchangeX (JzL[0][0], JzR[0][0], NX3_TOT*NX2_TOT, grid); 
+   		ExchangeX (JL[0][0], JR[0][0], NX3_TOT*NX2_TOT, grid); 
   #endif
 
 /* --------------------------------------------------------------------- */
@@ -399,9 +385,7 @@ void SB_CorrectCurrent (double t, Grid *grid)
   if (grid[IDIR].lbound != 0){  /* ---- Left x-boundary ---- */
 
     RBox box;
-    static double ***Jx1;
-    static double ***Jy1;
-    static double ***Jz1;
+    static double ***J1;
 
   /* -- set grid ranges of FluxR and exchange b.c. -- */
 
@@ -409,39 +393,29 @@ void SB_CorrectCurrent (double t, Grid *grid)
     box.jb = 0; box.je = NX2_TOT-1; 
     box.kb = 0; box.ke = NX3_TOT-1;
 
-  /* -- make a copy of FluxR to avoid overwriting one nproc_x = 1 -- */
+  /* -- make a copy of JR to avoid overwriting one nproc_x = 1 -- */
 	
 	
        
     if (grid[IDIR].nproc == 1){
-      if (Jx1 == NULL) {
-      	  Jx1 = ARRAY_3D(NX3_TOT, NX2_TOT, 1, double);
-      	  Jy1 = ARRAY_3D(NX3_TOT, NX2_TOT, 1, double);
-      	  Jz1 = ARRAY_3D(NX3_TOT, NX2_TOT, 1, double);
+      if (J1 == NULL) {
+      	  J1 = ARRAY_3D(NX3_TOT, NX2_TOT, 1, double);
       }
       BOX_LOOP((&box), k, j, i) {
-       		 Jx1[k][j][i] = JxR[k][j][i];
-       		 Jy1[k][j][i] = JyR[k][j][i];
-       		 Jz1[k][j][i] = JzR[k][j][i];
+       		 J1[k][j][i] = JR[k][j][i];
        }
        
     }
     else {
-      Jx1 = JxR;
-      Jy1 = JyR;
-      Jz1 = JzR;
+      J1 = JR;
     }  
-  /* -- set boundary conditions on Jx1, Jy1, Jz1 -- */
+  /* -- set boundary conditions on J1 -- */
 
-    SB_SetBoundaryVar(Jx1, &box, X1_BEG, t, grid);
-    SB_SetBoundaryVar(Jy1, &box, X1_BEG, t, grid);
-    SB_SetBoundaryVar(Jz1, &box, X1_BEG, t, grid);
+    SB_SetBoundaryVar(J1, &box, X1_BEG, t, grid);
 
     for (k = 0; k < NX3_TOT; k++){
        for (j = 0; j < NX2_TOT; j++) {
-       	  HallJx[k][j][IBEG - 1] = 0.5*(JxL[k][j][0] + Jx1[k][j][0]);
-       	  HallJy[k][j][IBEG - 1] = 0.5*(JyL[k][j][0] + Jy1[k][j][0]);
-       	  HallJz[k][j][IBEG - 1] = 0.5*(JzL[k][j][0] + Jz1[k][j][0]);
+       	  Jin[k][j][IBEG - 1] = 0.5*(JL[k][j][0] + J1[k][j][0]);
       }
     }
   }   
@@ -456,15 +430,11 @@ void SB_CorrectCurrent (double t, Grid *grid)
     box.kb = 0; box.ke = NX3_TOT-1;
 
 
-    SB_SetBoundaryVar(JxL, &box, X1_END, t, grid);
-    SB_SetBoundaryVar(JyL, &box, X1_END, t, grid);
-    SB_SetBoundaryVar(JzL, &box, X1_END, t, grid);
+    SB_SetBoundaryVar(JL, &box, X1_END, t, grid);
     
     for (k = 0; k < NX3_TOT; k++){
        for (j = 0; j < NX2_TOT; j++) {
-        	HallJx[k][j][IEND] = 0.5*(JxL[k][j][0] + JxR[k][j][0]);
-        	HallJy[k][j][IEND] = 0.5*(JyL[k][j][0] + JyR[k][j][0]);
-        	HallJz[k][j][IEND] = 0.5*(JzL[k][j][0] + JzR[k][j][0]);
+        	Jin[k][j][IEND] = 0.5*(JL[k][j][0] + JR[k][j][0]);
         }
     }
   }
@@ -530,7 +500,10 @@ void ComputeJ(const Data *d, Grid *grid, double t) {
 			}
 		}
 #ifdef SHEARINGBOX
-		SB_CorrectCurrent (t, grid);
+		// Symmetrize currents at x-cell faces
+		Hall_FixJ (HallJx, t, grid);
+		Hall_FixJ (HallJy, t, grid);
+		Hall_FixJ (HallJz, t, grid);
 #endif
 	}
 	
@@ -558,10 +531,9 @@ void ComputeJ(const Data *d, Grid *grid, double t) {
 			}
 		}
 #ifdef SHEARINGBOX
-
-    CurrentBoundary(HallJx, grid);
-    CurrentBoundary(HallJy, grid);
-    CurrentBoundary(HallJz, grid);
+    Hall_JBoundary(HallJx, grid);
+    Hall_JBoundary(HallJy, grid);
+    Hall_JBoundary(HallJz, grid);
 #endif
 	}
 	
@@ -589,15 +561,11 @@ void ComputeJ(const Data *d, Grid *grid, double t) {
 			}
 		}
 #ifdef SHEARINGBOX
-
-    CurrentBoundary(HallJx, grid);
-    CurrentBoundary(HallJy, grid);
-    CurrentBoundary(HallJz, grid); 
+    Hall_JBoundary(HallJx, grid);
+    Hall_JBoundary(HallJy, grid);
+    Hall_JBoundary(HallJz, grid); 
 #endif
 	}
-
-	
-	
 }
 
 			
