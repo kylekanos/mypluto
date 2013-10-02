@@ -77,7 +77,7 @@ void SetCurrentRBox(RBox *center, RBox *x1face, RBox *x2face, RBox *x3face)
    x3face[s].vpos = X3FACE;
 
 
-   x2face[s].jb--;
+   //x2face[s].jb--;
    
   #endif
 
@@ -122,7 +122,7 @@ void SetCurrentRBox(RBox *center, RBox *x1face, RBox *x2face, RBox *x3face)
    x3face[s].vpos = X3FACE;
 
 
-   x3face[s].kb--;
+   //x3face[s].kb--;
   #endif
 
 /* ---------------------------------------------------
@@ -242,11 +242,12 @@ void CurrentBoundary (double ***Jin, Grid *grid)
 
 /* ---------------------------------------------------
     Check the number of processors in each direction
+    Only perform transfers in x if required
    --------------------------------------------------- */
 
   D_EXPAND(par_dim[0] = grid[IDIR].nproc > 1;  ,
-           par_dim[1] = grid[JDIR].nproc > 1;  ,
-           par_dim[2] = grid[KDIR].nproc > 1;)
+           par_dim[1] = 0;  ,
+           par_dim[2] = 0;)
 
   
 /* -------------------------------------
@@ -436,8 +437,8 @@ void SB_CorrectCurrent (double t, Grid *grid)
     SB_SetBoundaryVar(Jy1, &box, X1_BEG, t, grid);
     SB_SetBoundaryVar(Jz1, &box, X1_BEG, t, grid);
 
-    for (k = KBEG; k <= KEND; k++){
-       for (j = JBEG; j <= JEND; j++) {
+    for (k = 0; k < NX3_TOT; k++){
+       for (j = 0; j < NX2_TOT; j++) {
        	  HallJx[k][j][IBEG - 1] = 0.5*(JxL[k][j][0] + Jx1[k][j][0]);
        	  HallJy[k][j][IBEG - 1] = 0.5*(JyL[k][j][0] + Jy1[k][j][0]);
        	  HallJz[k][j][IBEG - 1] = 0.5*(JzL[k][j][0] + Jz1[k][j][0]);
@@ -459,8 +460,8 @@ void SB_CorrectCurrent (double t, Grid *grid)
     SB_SetBoundaryVar(JyL, &box, X1_END, t, grid);
     SB_SetBoundaryVar(JzL, &box, X1_END, t, grid);
     
-    for (k = KBEG; k <= KEND; k++){
-        for (j = JBEG; j <= JEND; j++) {
+    for (k = 0; k < NX3_TOT; k++){
+       for (j = 0; j < NX2_TOT; j++) {
         	HallJx[k][j][IEND] = 0.5*(JxL[k][j][0] + JxR[k][j][0]);
         	HallJy[k][j][IEND] = 0.5*(JyL[k][j][0] + JyR[k][j][0]);
         	HallJz[k][j][IEND] = 0.5*(JzL[k][j][0] + JzR[k][j][0]);
