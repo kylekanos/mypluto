@@ -74,6 +74,9 @@ int Unsplit (const Data *d, Riemann_Solver *Riemann,
             C_dt[BX2] = ARRAY_3D(NX3_TOT, NX2_TOT, NX1_TOT, double); ,
             C_dt[BX3] = ARRAY_3D(NX3_TOT, NX2_TOT, NX1_TOT, double);)
     #endif
+    #if HALL_MHD == SOURCE
+         	C_dt[MX1] = ARRAY_3D(NX3_TOT, NX2_TOT, NX1_TOT, double);
+    #endif
     #if AMBIPOLAR_DIFFUSION == EXPLICIT
          	C_dt[MX2] = ARRAY_3D(NX3_TOT, NX2_TOT, NX1_TOT, double);
     #endif
@@ -117,6 +120,9 @@ int Unsplit (const Data *d, Riemann_Solver *Riemann,
             memset ((void *)C_dt[BX2][kk][jj],'\0', NX1_TOT*sizeof(double));  ,
             memset ((void *)C_dt[BX3][kk][jj],'\0', NX1_TOT*sizeof(double));)
     #endif
+	#if HALL_MHD == SOURCE
+			memset ((void *)C_dt[MX1][kk][jj],'\0', NX1_TOT*sizeof(double));
+	#endif
     #if AMBIPOLAR_DIFFUSION == EXPLICIT
             memset ((void *)C_dt[MX2][kk][jj],'\0', NX1_TOT*sizeof(double));  
     #endif
@@ -196,7 +202,7 @@ int Unsplit (const Data *d, Riemann_Solver *Riemann,
       #ifdef SHEARINGBOX
        SB_SaveFluxes (&state, grid);
       #endif
-
+	  
       RightHandSide (&state, Dts, indx.beg, indx.end, dt, grid);
       for (in = indx.beg; in <= indx.end; in++) { 
         #if !GET_MAX_DT
@@ -215,6 +221,13 @@ int Unsplit (const Data *d, Riemann_Solver *Riemann,
         #if AMBIPOLAR_DIFFUSION  == EXPLICIT
          dl2 = 0.5*inv_dl[in]*inv_dl[in];
          C_dt[MX2][*k][*j][*i] += (dcoeff[in-1][MX2] + dcoeff[in][MX2])*dl2;
+        #endif
+        #if HALL_MHD == SOURCE
+         lHall_Func (state.v[in], grid[IDIR].x[*i], grid[JDIR].x[*j], grid[KDIR].xr[*k], &dcoeff[in][MX1]);
+         C_dt[MX1][*k][*j][*i] += dcoeff[in][MX1]* pow(state.v[in][BX1]*state.v[in][BX1]+
+         											   state.v[in][BX2]*state.v[in][BX2]+
+         											   state.v[in][BX3]*state.v[in][BX3],0.5) *
+         																						inv_dl[in]*inv_dl[in];
         #endif
         #if THERMAL_CONDUCTION  == EXPLICIT
          dl2 = 0.5*inv_dl[in]*inv_dl[in];
@@ -493,6 +506,9 @@ int Unsplit (const Data *d, Riemann_Solver *Riemann,
        EXPAND(Dts->inv_dtp = MAX(Dts->inv_dtp, C_dt[BX1][kk][jj][ii]);  ,
               Dts->inv_dtp = MAX(Dts->inv_dtp, C_dt[BX2][kk][jj][ii]);  ,
               Dts->inv_dtp = MAX(Dts->inv_dtp, C_dt[BX3][kk][jj][ii]);)
+      #endif
+      #if HALL_MHD == SOURCE
+       Dts->inv_dtp = MAX(Dts->inv_dtp, C_dt[MX1][kk][jj][ii]);
       #endif
       #if AMBIPOLAR_DIFFUSION == EXPLICIT
        Dts->inv_dtp = MAX(Dts->inv_dtp, C_dt[MX2][kk][jj][ii]);

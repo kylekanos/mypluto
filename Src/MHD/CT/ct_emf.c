@@ -475,7 +475,9 @@ printf ("%d %d   %d %d\n",0, NX1_TOT-1, 0, NX2_TOT-1);
    }}}
   #endif
 
-  
+#if HALL_MHD == SOURCE
+   Hall_emf(&emf, d, grid);
+#endif  
 
    
 /* -------------------------------------------------------------

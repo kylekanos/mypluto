@@ -368,7 +368,7 @@ def problem(work_dir, pluto_path, pluto_dir, additional_files,
     default_MHD.append('NO')
     
     entries_MHD.append('HALL_MHD')
-    options_MHD.append(['NO','RIEMANN'])
+    options_MHD.append(['NO','RIEMANN','SOURCE'])
     default_MHD.append('NO')
     
     entries_MHD.append('AMBIPOLAR_DIFFUSION')
