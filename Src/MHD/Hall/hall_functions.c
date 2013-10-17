@@ -656,7 +656,7 @@ void Hall_emf(EMF *emf, Data *d, Grid *grid) {
     		v[n]=0.25*(d->Vc[n][k][j][i]+d->Vc[n][k+1][j][i]+d->Vc[n][k][j+1][i]+d->Vc[n][k+1][j+1][i]);
 		lHall_Func(v, grid[IDIR].x[i], 0.5*(grid[JDIR].x[j]+grid[JDIR].x[j+1]), 0.5*(grid[KDIR].x[k]+grid[KDIR].x[k+1]), &lhall);
 		
-		emf->ex[k][j][i] += -lhall*(Jy[k][j][i]*Bze[k][j][i]-Jz[k][j][i]*Bye[k][j][i]);
+		emf->ex[k][j][i] += lhall*(Jy[k][j][i]*Bze[k][j][i]-Jz[k][j][i]*Bye[k][j][i]);
     }}}
     
     // EMF in the y direction (located on x-z edge)
@@ -694,7 +694,7 @@ void Hall_emf(EMF *emf, Data *d, Grid *grid) {
     		v[n]=0.25*(d->Vc[n][k][j][i]+d->Vc[n][k+1][j][i]+d->Vc[n][k][j][i+1]+d->Vc[n][k+1][j][i+1]);
 		lHall_Func(v, 0.5*(grid[IDIR].x[i]+grid[IDIR].x[i+1]), grid[JDIR].x[j], 0.5*(grid[KDIR].x[k]+grid[KDIR].x[k+1]), &lhall);
 		
-		emf->ey[k][j][i] += -lhall*(Jz[k][j][i]*Bxe[k][j][i]-Jx[k][j][i]*Bze[k][j][i]);
+		emf->ey[k][j][i] += lhall*(Jz[k][j][i]*Bxe[k][j][i]-Jx[k][j][i]*Bze[k][j][i]);
     }}}
     
     // EMF in the z direction (located on x-y edge)
@@ -732,7 +732,7 @@ void Hall_emf(EMF *emf, Data *d, Grid *grid) {
     		v[n]=0.25*(d->Vc[n][k][j][i]+d->Vc[n][k][j+1][i]+d->Vc[n][k][j][i+1]+d->Vc[n][k][j+1][i+1]);
 		lHall_Func(v, 0.5*(grid[IDIR].x[i]+grid[IDIR].x[i+1]), 0.5*(grid[JDIR].x[j]+grid[JDIR].x[j+1]), grid[KDIR].x[k], &lhall);
 		
-		emf->ez[k][j][i] += -lhall*(Jx[k][j][i]*Bye[k][j][i]-Jy[k][j][i]*Bxe[k][j][i]);
+		emf->ez[k][j][i] += lhall*(Jx[k][j][i]*Bye[k][j][i]-Jy[k][j][i]*Bxe[k][j][i]);
     }}}
 	
 }
