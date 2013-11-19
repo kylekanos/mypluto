@@ -1,7 +1,7 @@
 #include "pluto.h"
 
 
-#if HALL_MHD = SOURCE
+#if HALL_MHD == SOURCE
 // Compute Hall EMFS required by Hall as a source term
 void Hall_emf(EMF *emf, Data *d, Grid *grid) {
 	static int first_call = 1;
