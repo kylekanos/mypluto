@@ -139,7 +139,7 @@ void ParabolicFlux (Data_Arr V, const State_1D *state,
 
   #if RESISTIVE_MHD == EXPLICIT
    {
-     ResistiveFlux (V, state->par_flx, dcoeff, beg, end, grid);
+     ResistiveFlux (V, state->par_flx, dcoeff, beg, end, grid, state);
      for (i = beg; i <= end; i++){
 
      /* ------------------------------------------
@@ -180,7 +180,7 @@ void ParabolicFlux (Data_Arr V, const State_1D *state,
 
   #if AMBIPOLAR_DIFFUSION == EXPLICIT
    {
-     AmbipolarFlux (V, state->par_flx, dcoeff, beg, end, grid);
+     AmbipolarFlux (V, state->par_flx, dcoeff, beg, end, grid, state);
      for (i = beg; i <= end; i++){
 
      /* ------------------------------------------

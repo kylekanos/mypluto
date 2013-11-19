@@ -50,7 +50,7 @@
 
 /* ********************************************************************* */
 void AmbipolarFlux (Data_Arr V, double **RF, double **dcoeff, 
-                    int beg, int end, Grid *grid)
+                    int beg, int end, Grid *grid, const State_1D *state)
 /*! 
  *  Compute resistive fluxes for the induction and energy
  *  equations. Also, compute the diffusion coefficient.
@@ -74,9 +74,15 @@ void AmbipolarFlux (Data_Arr V, double **RF, double **dcoeff,
   double eta, vi[NVAR], Jperp[3];
   static double **J;
 
+#if HALL_MHD==RIEMANN
+  // Currents have already been computed and stored by the Hall module
+  J = state->j;
+#else
+  // Compute currents. Caution: no symmetrisation has been performed here!
   if (J == NULL) J = ARRAY_2D(NMAX_POINT, 3, double);
   
   GetFullCurrent (V, J, grid);
+#endif
  
   D_EXPAND(x1 = grid[IDIR].x[*g_i];  ,
            x2 = grid[JDIR].x[*g_j];  ,

@@ -11,7 +11,7 @@
 */
 /* ///////////////////////////////////////////////////////////////////// */
 
-void ResistiveFlux (Data_Arr, double **, double **, int, int, Grid *);
+void ResistiveFlux (Data_Arr, double **, double **, int, int, Grid *, const State_1D *state);
 
 void GetCurrent (Data_Arr, real **, Grid *);
 

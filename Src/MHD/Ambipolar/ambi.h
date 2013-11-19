@@ -10,7 +10,7 @@
 */
 /* ///////////////////////////////////////////////////////////////////// */
 
-void AmbipolarFlux (Data_Arr, double **, double **, int, int, Grid *);
+void AmbipolarFlux (Data_Arr, double **, double **, int, int, Grid *, const State_1D *state);
 
 void GetCurrent (Data_Arr, real **, Grid *);
 
