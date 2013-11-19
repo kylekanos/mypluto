@@ -632,6 +632,7 @@ def problem(work_dir, pluto_path, pluto_dir, additional_files,
   sts_flag = 0 # if changed to 1, include the super-time-stepping driver
   rkc_flag = 0 # if changed to 1, include the runge-kutta-Chebyshev driver
   exp_flag = 0 # if changed to 1, include explicit parabolic time-stepping
+  cur_flag = 0 # if changed to 1, include current calculation
 
   if (physics_module == 'HD'):
     pluto_path.append('HD/')
@@ -671,6 +672,7 @@ def problem(work_dir, pluto_path, pluto_dir, additional_files,
     n = entries_MOD.index('RESISTIVE_MHD')
     if (default_MOD[n] != 'NO'):
       pluto_path.append('MHD/Resistive/')
+      cur_flag = 1
       if   (default_MOD[n] == 'SUPER_TIME_STEPPING'): sts_flag = 1
       elif (default_MOD[n] == 'RK_CHEBYSHEV'):        rkc_flag = 1
       elif (default_MOD[n] == 'EXPLICIT'):            exp_flag = 1
@@ -678,10 +680,12 @@ def problem(work_dir, pluto_path, pluto_dir, additional_files,
     n = entries_MOD.index('HALL_MHD')
     if (default_MOD[n] != 'NO'):
       pluto_path.append('MHD/Hall/')
+      if   (default_MOD[n] == 'RIEMANN'):			  cur_flag = 1
       
     n = entries_MOD.index('AMBIPOLAR_DIFFUSION')
     if (default_MOD[n] != 'NO'):
       pluto_path.append('MHD/Ambipolar/')
+      cur_flag = 1
 
     n = entries_MOD.index('THERMAL_CONDUCTION')
     if (default_MOD[n] != 'NO'):
@@ -697,6 +701,9 @@ def problem(work_dir, pluto_path, pluto_dir, additional_files,
       elif (default_MOD[n] == 'RK_CHEBYSHEV'):        rkc_flag = 1
       elif (default_MOD[n] == 'EXPLICIT'):            exp_flag = 1
   
+     if( cur_flag == 1):
+     	pluto_path.append('MHD/Current/')
+     	additional_flags.append(' -DNEED_CURRENT')
     # ***************************
     #  need shearingbox module ?
     # ***************************

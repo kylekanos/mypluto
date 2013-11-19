@@ -737,9 +737,11 @@ typedef struct STATE_1D{
   double **par_flx; /**< parabolic fluxes (viscosity + thermal cond. +
                           resistivity) */
 #if HALL_MHD == RIEMANN
-  double *lHall;
+  double *lHall;	/* Variables needed to compute Hall in the Godunov scheme */
   double *dlmin;
-  double **j;		/* Current used to compute Hall-MHD */		
+#endif
+#ifdef NEED_CURRENT
+  double **j;		/* Current used to compute nonideal MHD */		
 #endif
   
   double **pnt_flx;

@@ -158,8 +158,8 @@ int Unsplit (const Data *d, Riemann_Solver *Riemann,
   
     SetIndexes (&indx, grid);  /* -- set normal and transverse indices -- */
     ResetState (d, &state, grid);
-#if HALL_MHD == RIEMANN
-	 ComputeJ(d, grid, g_time);			/* Compute currents needed by Hall */
+#ifdef NEED_CURRENT
+	 ComputeJ(d, grid, g_time);			/* Compute currents needed by nonideal MHD modules */
 #endif
     TRANSVERSE_LOOP(indx,in,i,j,k){  
 
@@ -182,8 +182,8 @@ int Unsplit (const Data *d, Riemann_Solver *Riemann,
          	state.dlmin[in] = grid[g_dir].dx[in];
         #endif
       }
-      #if HALL_MHD == RIEMANN
-      /* Compute current needed by Hall */
+      #ifdef NEED_CURRENT
+      /* Store currents needed by nonideal MHD modules */
       StoreJState(&state, &in, i, j, k, indx.beg-1, indx.end+1);
       #endif
       
@@ -304,9 +304,9 @@ int Unsplit (const Data *d, Riemann_Solver *Riemann,
 
      SetIndexes (&indx, grid);    /* -- set normal and transverse indices -- */
      ResetState (d, &state, grid);
-#if HALL_MHD == RIEMANN
-	 ComputeJ(d, grid, g_time+g_dt);			/* Compute currents needed by Hall */
-#endif
+	 #ifdef NEED_CURRENT
+	 ComputeJ(d, grid, g_time);			/* Compute currents needed by nonideal MHD modules */
+	 #endif
      TRANSVERSE_LOOP(indx,in,i,j,k){  
 
        for (in = 0; in < indx.ntot; in++) {
@@ -324,10 +324,10 @@ int Unsplit (const Data *d, Riemann_Solver *Riemann,
          	state.dlmin[in] = grid[g_dir].dx[in];
         #endif
        }
-	   #if HALL_MHD == RIEMANN
-       /* Store current needed by Hall */
-		StoreJState(&state, &in, i, j, k, indx.beg-1, indx.end+1);
-       #endif
+	  #ifdef NEED_CURRENT
+      /* Store currents needed by nonideal MHD modules */
+      StoreJState(&state, &in, i, j, k, indx.beg-1, indx.end+1);
+      #endif
       
        States  (&state, indx.beg - 1, indx.end + 1, grid);     
        Riemann (&state, indx.beg - 1, indx.end, Dts->cmax, grid);
@@ -414,9 +414,9 @@ int Unsplit (const Data *d, Riemann_Solver *Riemann,
 
      SetIndexes (&indx, grid);  /* -- set normal and transverse indices -- */
      ResetState (d, &state, grid);
-#if HALL_MHD == RIEMANN
-	 ComputeJ(d, grid, g_time+g_dt);			/* Compute currents needed by Hall */
-#endif
+	 #ifdef NEED_CURRENT
+	 ComputeJ(d, grid, g_time);			/* Compute currents needed by nonideal MHD modules */
+	 #endif
      TRANSVERSE_LOOP(indx,in,i,j,k){  
 
        for (in = 0; in < indx.ntot; in++) {
@@ -434,8 +434,8 @@ int Unsplit (const Data *d, Riemann_Solver *Riemann,
          	state.dlmin[in] = grid[g_dir].dx[in];
         #endif
        }
-	   #if HALL_MHD == RIEMANN
-       /* Compute current needed by Hall */
+	   #ifdef NEED_CURRENT
+       /* Store currents needed by nonideal MHD modules */
        StoreJState(&state, &in, i, j, k, indx.beg-1, indx.end+1);
        #endif
       

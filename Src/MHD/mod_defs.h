@@ -266,6 +266,10 @@ Riemann_Solver LF_Solver, Roe_Solver;
  #include "Ambipolar/ambi.h"
 #endif
 
+#ifdef NEED_CURRENT
+ #include "Current/current.h"
+#endif
+
 #ifdef SHEARINGBOX
  #include "MHD/ShearingBox/shearingbox.h"
 #endif

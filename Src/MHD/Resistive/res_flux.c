@@ -72,14 +72,7 @@ void ResistiveFlux (Data_Arr V, double **RF, double **dcoeff,
   double eta[3], vi[NVAR];
   static double **J;
 
-#if HALL_MHD==RIEMANN
-  // Currents have already been computed and stored by the Hall module
   J = state->j;
-#else
-  if (J == NULL) J = ARRAY_2D(NMAX_POINT, 3, double);
-  
-  GetCurrent (V, J, grid);
-#endif
  
   D_EXPAND(x1 = grid[IDIR].x[*g_i];  ,
            x2 = grid[JDIR].x[*g_j];  ,
