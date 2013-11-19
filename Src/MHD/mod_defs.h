@@ -67,7 +67,7 @@ enum {
 
 };
 
-#if HALL_MHD == RIEMANN
+#ifdef NEED_CURRENT
 
 enum {
     JX1, JX2, JX3

@@ -701,9 +701,9 @@ def problem(work_dir, pluto_path, pluto_dir, additional_files,
       elif (default_MOD[n] == 'RK_CHEBYSHEV'):        rkc_flag = 1
       elif (default_MOD[n] == 'EXPLICIT'):            exp_flag = 1
   
-     if( cur_flag == 1):
-     	pluto_path.append('MHD/Current/')
-     	additional_flags.append(' -DNEED_CURRENT')
+    if ( cur_flag == 1):
+      pluto_path.append('MHD/Current/')
+      additional_flags.append(' -DNEED_CURRENT')
     # ***************************
     #  need shearingbox module ?
     # ***************************

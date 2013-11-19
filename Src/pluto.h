@@ -83,6 +83,7 @@
 #define SUPER_TIME_STEPPING  2 /* -- just a number different from EXPLICIT -- */ 
 #define RK_CHEBYSHEV         4  
 #define RIEMANN              8
+#define SOURCE				 16
 
      /*  ----   Output labels:  ---- */
 

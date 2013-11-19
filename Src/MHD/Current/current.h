@@ -12,4 +12,4 @@
 
 void ComputeJ(const Data *d, Grid *grid, double t);
 void StoreJState(State_1D *state, int *in, int *i, int *j, int *k, int beg, int end);
-void Curr_FixJ (double ***Jin, double t, Grid *grid)
+void Curr_FixJ (double ***Jin, double t, Grid *grid);

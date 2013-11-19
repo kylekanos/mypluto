@@ -358,6 +358,8 @@ void MakeState (State_1D *state)
 #if HALL_MHD == RIEMANN
   state->lHall   = ARRAY_1D(NMAX_POINT, double);
   state->dlmin   = ARRAY_1D(NMAX_POINT, double);
+#endif
+#ifdef NEED_CURRENT
   state->j       = ARRAY_2D(NMAX_POINT, 3, double);
 #endif
 
