@@ -233,7 +233,7 @@ int Unsplit (const Data *d, Riemann_Solver *Riemann,
          dl2 = 0.5*inv_dl[in]*inv_dl[in];
          C_dt[ENG][*k][*j][*i] += (dcoeff[in-1][ENG] + dcoeff[in][ENG])*dl2;
         #endif
-        for (nv = NVAR; nv--;  )  UU_1[*k][*j][*i][nv] += 0.0*state.rhs[in][nv];
+        for (nv = NVAR; nv--;  )  UU_1[*k][*j][*i][nv] += state.rhs[in][nv];
       }
     }
   }
@@ -349,7 +349,7 @@ int Unsplit (const Data *d, Riemann_Solver *Riemann,
       
        for (in = indx.beg; in <= indx.end; in++) {
        for (nv = NVAR; nv--;  ) {
-         UU_1[*k][*j][*i][nv] += 0.0*state.rhs[in][nv];
+         UU_1[*k][*j][*i][nv] += state.rhs[in][nv];
        }}
      }
    }
@@ -459,7 +459,7 @@ int Unsplit (const Data *d, Riemann_Solver *Riemann,
 
        for (in = indx.beg; in <= indx.end; in++) {
        for (nv = NVAR; nv--;  ) {
-         UU_1[*k][*j][*i][nv] += 0.0*state.rhs[in][nv];
+         UU_1[*k][*j][*i][nv] += state.rhs[in][nv];
        }}
      }
    }
