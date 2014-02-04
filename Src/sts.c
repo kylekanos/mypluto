@@ -281,7 +281,7 @@ void STS_ComputeSubSteps(double dtex, double tau[], int ssorder)
   S = 0.0;
 
   for (i = 0; i < ssorder; i++) {
-    tau[i] = dtex / ((-1.0+STS_nu)*cos(((2.0*i+1.0)*CONST_PI)/(2.0*ssorder)) + 1.0 + STS_nu);
+    tau[i] = dtex / ((-1.0+STS_nu)*cos(((2.0*i-1.0)*CONST_PI)/(2.0*ssorder)) + 1.0 + STS_nu);
     S += tau[i];
   }
 }
